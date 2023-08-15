@@ -1,2 +1,0 @@
-# LaNPC
-Online game store 
