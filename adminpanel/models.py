@@ -20,7 +20,7 @@ class Game(models.Model):
     banner_image = models.ImageField(upload_to='game_banners/' , null=True)
     cover_image = models.ImageField(upload_to='game_covers/', null=True)
     category = models.ForeignKey('Category', on_delete=models.CASCADE)
-    featured = models.BooleanField(default=False)
+    featured = models.BooleanField(default=False )
 
     def __str__(self):
         return self.name
