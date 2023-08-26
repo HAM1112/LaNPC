@@ -9,12 +9,12 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+import dj_database_url
 from pathlib import Path
 import os
-from decouple import config
+from decouple import Config
 
-
+config = Config()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,12 +23,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-k!u!@nrpmmyhur9x870@o0i#p^165utlb$()d@s&*scal$giwk'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(" ")
 
 
 # Application definition
@@ -100,6 +100,10 @@ DATABASES = {
    }
 }
 
+database_url = config('database_url')
+DATABASES['default'] = dj_database_url.parse(database_url)
+# postgres://lanpcdb_user:rdwiN92rwVmuhkHWjdqmFP6hQ9eTHaqh@dpg-ckbprmmsmu8c73anmvc0-a.oregon-postgres.render.com/lanpcdb
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -166,8 +170,8 @@ EMAIL_HOST_USER = config('EMAIL_ADD')
 EMAIL_HOST_PASSWORD = config('EMAIL_PASS')
 
 # paypal settings
-PAYPAL_RECEIVER_EMAIL = 'bizwhitejag@example.com'
-PAYPAL_TEST = True
+PAYPAL_RECEIVER_EMAIL = config('PAYPAL_RECEIVE_EMAIL')
+PAYPAL_TEST = config('PAYPAL_TEST')
 
 
 CHANNEL_LAYERS = {
