@@ -307,9 +307,10 @@ def profile(request):
     purchased_games = PurchasedGame.objects.filter(user = user)
     
     transactions = Transaction.objects.filter(user=request.user)
-    
-    gamechat = purchased_games[0].game
-    
+    if purchased_games :
+        gamechat = purchased_games[0].game
+    else:
+        gamechat = None
     context = {
         'wishlists' : wishlists,
         'purchased_games' : purchased_games,
