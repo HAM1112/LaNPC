@@ -1,0 +1,34 @@
+{% extends 'adminpanel/layout.html' %}
+
+{% block content %}
+
+<div class="bg-gray-700 shadow-md rounded-lg overflow-hidden">
+    <div class="p-4 flex justify-evenly">
+        <img src="/static/uploads/{{ game.banner_image }}" alt="{{ game.name }} banner" class="h-80 object-contain object-cover">
+        <img src="/static/uploads/{{ game.cover_image }}" alt="{{ game.name }} cover" class="h-80 object-contain object-cover">
+        
+    </div>
+    <div class="p-4">
+      <h2 class="text-xl font-semibold my-2">{{ game.name }}</h2>
+      <p class="text-gray-400 my-2">{{ game.description }}</p>
+      <p class="text-gray-400 my-2">Coins: {{ game.coins }}</p>
+      <p class="text-gray-400 my-2">Category: {{ game.category }}</p>
+      <p class="text-gray-400 my-2">Time of Creation: {{ game.time_of_creation }}</p>
+      <p class="text-gray-400 my-2">Featured: {{ game.featured }}</p>
+      <div class="mt-4 flex justify-between">
+        <a href="{% url 'edit-game' game.id %}">
+          <button class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md">
+            Edit
+          </button>
+        </a>
+        <a href="{% url 'delete-game' game.id %}">
+          <button type="submit" class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md">
+            Remove
+          </button>
+        </a>
+      </div>
+    </div>
+</div>
+  
+
+{% endblock  %}

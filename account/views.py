@@ -63,11 +63,9 @@ def signIn(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            # return redirect('user-home')  # Redirect to the appropriate page after login
             return redirect('home')
         else:
-            # Handle invalid login
-            return render(request, 'signin.html', {'error_message': 'Invalid credentials'})
+            return render(request, 'account/accountsignin.html', {'error_message': 'Invalid credentials'})
     
     return render(request , 'account/accountsignin.html')
             

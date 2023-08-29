@@ -24,3 +24,19 @@ class Game(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+class CoinsPack(models.Model):
+    coins = models.PositiveIntegerField()
+    offer = models.PositiveIntegerField()
+
+    @property
+    def total_price(self):
+        return self.coins * 15  # Assuming 1 coin = 15 dollars
+
+    @property
+    def price_after_offer(self):
+        return self.total_price - ((self.offer / 100) * self.total_price)
+
+    def __str__(self):
+        return f"{self.coins} Coins Pack with {self.offer}% Offer"

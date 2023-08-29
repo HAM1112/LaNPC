@@ -1,0 +1,44 @@
+{% extends 'adminpanel/layout.html' %}
+
+{% block content %}
+<div class="container mx-auto mt-8 grid grid-cols-4 gap-4">
+    <!-- Card 1 --> 
+    {% for coin in coins %}
+        <div class="bg-gray-500 p-6 rounded-lg shadow-md flex justify-between">
+            <div>
+                <h2 class="text-xl font-semibold mb-2 text-black">{{coin.coins}} Coins</h2>
+                <p>Offer : {{coin.offer}}</p>
+                {% if coin.price_after_offer == coin.total_price  %}
+                    <p>  ₹{{coin.price_after_offer}}</p>
+                {% else %}
+                    <p><span class="line-through">₹{{coin.total_price}}</span>  ₹{{coin.price_after_offer}}</p>
+                {% endif %}
+                
+            </div>
+            <a href="{% url 'delete-coins' coin.id %}" >
+                <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Delete</button>
+            </a>
+        </div>   
+    {% endfor %}
+    
+   
+    <!-- Add more cards as needed -->
+</div>
+<form method="POST">
+    {% csrf_token %}
+    <div class="bg-gray-300 p-6 rounded-lg shadow-md mt-4 flex justify-between items-center" style="max-width: 350px;">
+        <div>
+            <div>
+                <h2 class="font-semibold mb-2 text-black">Coins package</h2>
+                <input type="number" name="coins" class="border border-gray-300 p-2 mb-2 rounded w-full text-black" placeholder="Coins" required>
+            </div>
+            <div>
+                <h2 class="font-semibold mb-2 text-black">Offer</h2>
+                <input type="number" name="offer" class="border border-gray-300 p-2 mb-2 rounded w-full text-black" placeholder="Offer Percentage" required min="0" max="99">
+            </div>
+        </div>
+        <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">Add</button>    
+    </div>
+</form>
+
+{% endblock  %}

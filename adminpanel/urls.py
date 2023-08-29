@@ -5,12 +5,24 @@ urlpatterns = [
     path('', views.signIn , name='admin-signin'),
     path('home/' , views.adminHome, name='admin-home'),
     path('logout/', views.adminLogout, name="admin-logout"),
-    path('games/' , views.gamesList , name='gameslist'),
+    
+    # users related
     path('users/' , views.usersList , name='userslist'),
+    path('user/<int:userId>/' , views.singleUser , name='user-details'),
+    path('edituser/<int:userId>/', views.editUser , name='edit-user'),
+    
+    # games related
+    path('games/' , views.gamesList , name='gameslist'),
+    path('game/<int:gameId>/' , views.singleGame , name='game-details'),
+    path('editGame/<int:gameId>/' , views.editGame , name='edit-game'),
+    path('delGame/<int:gameId>' , views.deleteGame , name="delete-game"),
+    
+    # category related
     path('categories/' , views.categoriesList , name='categorieslist'),
-    path('user/<int:userId>' , views.singleUser , name='user-details'),
-    path('game/<int:gameId>' , views.singleGame , name='game-details'),
-    path('edituser/<int:userId>', views.editUser , name='edit-user'),
-    path('deleteCategory/<int:categoryId>' , views.deleteCategory , name='deleteCategory'),
+    path('delCategory/<int:categoryId>' , views.deleteCategory , name='deleteCategory'),
+    
+    # Coins related
+    path('coins/' , views.coinsList , name="coinslist"),
+    path('delCoins/<int:coinsId>' , views.deleteCoins , name="delete-coins"),
     
 ]

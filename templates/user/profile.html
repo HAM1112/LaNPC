@@ -1,0 +1,90 @@
+{% extends 'user/base.html' %}
+
+{% block title %} Profile {% endblock  %}
+
+
+{% block content %}
+
+<div class="row bg-dark py-4 px-3 rounded">
+    <div class="col-md-4 profile-cards">
+      <div class="card">
+        <div class="card-body p-0">
+            <img src="/static/images/profile-pic.webp"  alt="Image 1">
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 profile-cards bg-transparent">
+      <div class="card bg-transparent">
+        <div class="card-body bg-transparent d-flex flex-column">
+           <span class="rounded-pill text-white ">{{user.username}}</span>
+          <h5 class="card-title">{{user.username}}</h5>
+          <p class="card-text">This is the content of Card 2.</p>
+          <a href="{% url 'user-logout' %}">
+              <button type="button" class="btn btn-danger">Logout</button>
+          </a>
+
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 profile-cards">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title text-dark">Coins : 433</h5>
+          <p class="card-text">Games Downloaded : 3</p>
+          <p class="card-text">Reviews : None</p>
+          <p class="card-text">Cart : 3</p>
+          <p class="card-text">WishList : 8</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  
+  
+  <!-- ***** Gaming Library Start ***** -->
+  <div class="gaming-library">
+    
+    {% if wishlists %}
+          <div class="col-lg-12">
+            <div class="heading-section">
+              <h4><em>Your Gaming</em> Library</h4>
+            </div>
+
+            {% for wishlist in wishlists %}
+              <div class="item">
+                <ul>
+                  <li><img src="/static/uploads/{{wishlist.game.banner_image}}" alt="" class="templatemo-item"></li>
+                  <li><h4>{{wishlist.game.name}}</h4><span>{{wishlist.game.category}}</span></li>
+                  <li><h4>Date Added</h4><span>{{wishlist.time_added}}</span></li>
+                  <li><h4>Coins</h4><span><i class="fa-solid fa-coins"></i> {{wishlist.game.coins}}</span></li>       
+                  <li><div class="main-border-button border-no-active"><a href="#">Add To Cart</a></div></li>
+                  <li><div class="main-border-button border-no-active"><a href="#">Buy Now</a></div></li>
+                </ul>
+              </div>
+              
+            {% endfor %}
+          </div>
+          <div class="col-lg-12">
+            <div class="main-button">
+              <a href="profile.html">View Your Library</a>
+            </div>
+          </div>
+    {% else %}
+      <div class="col-lg-12">
+        <div class="heading-section">
+          <h4><em style="text-decoration: none;">You Wishlist</em> Is Empty</h4>
+        </div>
+      </div>
+    {% endif %}
+
+
+
+
+  </div>
+  <!-- ***** Gaming Library End ***** -->
+
+
+{% endblock  %}
+

@@ -1,0 +1,133 @@
+{% extends 'user/base.html' %}
+
+{% block title %} Browse {% endblock  %}
+
+
+{% block content %}
+
+<!-- ***** Featured Games Start ***** -->
+<div class="row">
+    <div class="col-lg-8">
+      <div class="featured-games header-text">
+        <div class="heading-section">
+          <h4><em>Featured</em> Games</h4>
+        </div>
+        <div class="owl-features owl-carousel">
+          
+            {% for game in games %}
+            {% if game.featured %}
+            <div class="item">
+              <a href="{% url 'game' game.id %}">
+                <div class="thumb">
+                    <img src="/static/uploads/{{game.banner_image}}" alt="{{game.name}}">
+                    <div class="hover-effect">
+                        <h6>{{game.category}}</h6>
+                    </div>
+                </div>
+              </a>
+                <h4>{{game.name}}<br><span>249K Downloads</span></h4>
+                <ul>
+                    <li><i class="fa-solid fa-coins"></i> 4.8</li>
+                    <li><i class="fa fa-download"></i> 2.3M</li>
+                </ul>
+            </div>
+            {% endif %}
+            {% endfor %}
+            
+            
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="top-downloaded">
+        <div class="heading-section">
+          <h4><em>Top</em> Purchased</h4>
+        </div>
+        <ul>
+          
+          {% for game in top_coins %}
+          <li>
+            <img src="/static/uploads/{{game.cover_image}}" alt="" class="templatemo-item">
+            <h4>{{game.name}}</h4>
+            <h6>{{game.category}}</h6>
+            <span><i class="fa-solid fa-coins" style="color: yellow;"></i> {{game.coins}}</span>
+            <span><i class="fa fa-download" style="color: #ec6090;"></i> 2.2M</span>
+            <div class="download">
+              <a href="{% url 'game' game.id %}"><i class="fa fa-download"></i></a>
+            </div>
+          </li>
+          {% endfor %}
+       
+        </ul>
+        <div class="text-button">
+          <a href="profile.html">View All Games</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ***** Featured Games End ***** -->
+
+  <!-- ***** Start Stream Start ***** -->
+  <div class="start-stream">
+    <div class="col-lg-12">
+      <div class="heading-section">
+        <h4><em>Explore All </em> Categories</h4>
+      </div>
+      <div class="row">
+        {% for category in categories %}
+        <div class="col-lg-4 mt-2">
+            <a href="{% url 'category-game' category.id %}">
+              <div class="item">
+                  <h4>{{category.name}}</h4>
+              </div>
+            </a>
+          </div>
+        {% endfor %}
+
+       
+        <!-- <div class="col-lg-12">
+          <div class="main-button">
+            <a href="profile.html">Go To Profile</a>
+          </div>
+        </div> -->
+      </div>
+    </div>
+  </div>
+  <!-- ***** Start Stream End ***** -->
+
+  <!-- ***** Other Start ***** -->
+  <div class="other-games">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="heading-section">
+          <h4><em>Other Related</em> Games</h4>
+        </div>
+      </div>
+      {% for game in other_games %}
+      <div class="col-lg-6">
+        <div class="item">
+          <a href="{% url 'game' game.id %}">
+            <img src="/static/uploads/{{game.cover_image}}" alt="" class="templatemo-item">
+            <h4>{{game.name}}</h4><span>{{game.category}}</span>
+          </a>
+          <ul>
+            <li><i class="fa-solid fa-coins"></i> {{game.coins}}</li>
+            <li><i class="fa fa-download"></i> 2.3M</li>
+          </ul>
+        </div>
+      </div>
+      {% endfor %}
+      
+      <div class="col-lg-12">
+        <div class="main-button">
+          <a href="{% url 'all-games' %}">View All Games</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ***** Other End ***** -->
+
+{% endblock  %}
+

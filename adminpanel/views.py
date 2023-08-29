@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate
 from django.contrib import auth
  
 from account.models import User
-from .models import Game , Category
+from .models import Game , Category , CoinsPack
 
 from .forms import GameForm
 
@@ -98,24 +98,42 @@ def editUser(request , userId):
 # Displaying all game inn a table
 def gamesList(request):     
     if request.method == 'POST':
-        form = GameForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()  # Save the form data as a new Game instance
-            print("form is valid")
-            return redirect('gameslist')  # Redirect to the games list page or any other appropriate view
-        else:
-            print("form not valid")
-    
-    
-    form = GameForm()
-    
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        coins = request.POST.get('coins')
+        category = request.POST.get('category')
+        # featured = request.POST.get('featured')
+        banner_image = request.FILES.get('bannerImage')  # Retrieve uploaded file
+        cover_image = request.FILES.get('coverImage') 
+        
+        featured = True if request.POST.get('featured') else False
+
+        print('-----------------------')
+        print(featured)
+        print(category)
+        print(banner_image)
+        print(cover_image)
+        
+        print('-----------------------')
+        
+        game = Game(
+            name=name,
+            description = description,
+            coins = coins,
+            banner_image = banner_image,
+            cover_image = cover_image,
+            featured = featured,
+            category_id = category
+        )
+        game.save()
+        
     games = Game.objects.all()
     categories = Category.objects.all()
     context = {
         'games': games,
         'categories': categories,
-        'form': form
     }
+    print()
     return render(request, 'adminpanel/gamesdetails.html', context)
 
 
@@ -129,9 +147,41 @@ def singleGame(request , gameId):
     
     return render(request , 'adminpanel/singlegame.html' , context)
 
+def editGame(request , gameId):
+    if request.method == "POST":
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        coins = request.POST.get('coins')
+        category = request.POST.get('category')
+        featured = True if request.POST.get('featured') else False
+        
+        game = Game.objects.get(id=gameId)
+        
+        # updating values
+        game.name = name
+        game.description = description
+        game.coins = coins 
+        game.category_id = category
+        game.featured = featured 
+        game.save()
+        return redirect('game-details', gameId = gameId)
+    
+    game = Game.objects.get(id=gameId)
+    categories = Category.objects.exclude(id=game.category_id).all()
+    context = {
+        'game' : game,
+        'categories' : categories,
+    }
+    return render(request , 'adminpanel/editgame.html' , context)
+
+def deleteGame(request , gameId):
+    game = Game.objects.get(pk=gameId)
+    game.delete()
+    return redirect('gameslist')
+    
 
 #-----------------------------------------------#
-# ------------- CATEGORY RELATED ------------------ #
+# ------------- CATEGORY RELATED -------------- #
 #-----------------------------------------------#
 
 
@@ -153,4 +203,30 @@ def deleteCategory(request , categoryId):
     category = Category.objects.get(pk = categoryId)
     category.delete()
     return redirect('categorieslist')
+
+#-----------------------------------------------#
+# ------------- Coins RELATED ----------------- #
+#-----------------------------------------------#
+def coinsList(request):
+    if request.method == "POST":
+        coins = request.POST.get('coins')
+        offer = request.POST.get('offer')
+        print(coins)
+        print(offer)
+        
+        coinPack = CoinsPack.objects.create(coins = coins , offer = offer)
+        coinPack.save()
+        return redirect('coinslist')
+        
+    coinsPack = CoinsPack.objects.all()
     
+    context = {
+        'coins' : coinsPack,
+    }
+    
+    return render(request , 'adminpanel/coinsdetails.html' , context)
+
+def deleteCoins(request , coinsId):
+    coinPack = CoinsPack.objects.get(id = coinsId)
+    coinPack.delete()
+    return redirect('coinslist')
