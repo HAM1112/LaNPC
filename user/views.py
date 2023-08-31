@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from adminpanel.models import Game , Category , CoinsPack
 from django.contrib.auth.decorators import login_required
 
-from .models import Wishlist
+from .models import Wishlist , PurchasedGame
 
 
 # --------------------------------------------------#
@@ -14,9 +14,16 @@ from .models import Wishlist
 
 # @login_required()
 def home(request):
+    user = request.user
+    if user.id:
+        mygames = PurchasedGame.objects.filter(user=request.user)
+        print(request.user)
+    else:
+        mygames = False
     latest_games = Game.objects.order_by('-time_of_creation')[:8]
     context = {
         'latests' : latest_games,
+        'mygames' : mygames,
     }
     print(request.user.is_authenticated) 
     print(latest_games[0])
@@ -108,6 +115,22 @@ def browse(request):
     }   
     return render(request , 'user/browse.html' , context )
 
+def buyGame(request , gameId):
+    game = Game.objects.get(id=gameId)
+    user = request.user
+    
+    if PurchasedGame.objects.filter(user=user, game=game).exists():
+        return redirect('game' , gameId)
+    
+    if user.coins >= game.coins:
+        purchase = PurchasedGame.objects.create(user=user , game=game)
+        purchase.save()
+        user.coins -= game.coins
+        user.save()
+        return redirect('profile')
+    else:
+        return redirect('coins')
+
 # Adding game to wishlist
 def addWishList(request , gameId):
     print(request.user)
@@ -124,6 +147,10 @@ def delWishList(request, gameId):
 
 # display coins packages
 def coins(request):
+    if 'pack_id' in request.session:
+        del request.session['pack_id']
+    if 'in_id' in request.session:
+        del request.session['in_id']
     coinsPack = CoinsPack.objects.order_by('coins')
     context = {
         'coins' : coinsPack,
@@ -132,18 +159,20 @@ def coins(request):
 
 # display profile page
 def profile(request):
-    
     user = request.user
     wishlists = Wishlist.objects.filter(user = user)
+    purchased_games = PurchasedGame.objects.filter(user = user)
     print(wishlists)
     context = {
         'wishlists' : wishlists,
-    }
-    
-    
+        'purchased_games' : purchased_games,
+    } 
     return render(request , 'user/profile.html' , context)
 
-#user logout 
+# user logout 
 def userLogout(request):
     logout(request)
     return redirect('home')
+
+
+

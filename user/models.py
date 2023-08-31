@@ -10,3 +10,12 @@ class Wishlist(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s Wishlist Entry for Game {self.game.name}"
+    
+    
+class PurchasedGame(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
+    time_added = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username}Purchased Game {self.game.name}"

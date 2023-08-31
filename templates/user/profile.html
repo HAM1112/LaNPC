@@ -30,7 +30,7 @@
     <div class="col-md-4 profile-cards">
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title text-dark">Coins : 433</h5>
+          <h5 class="card-title text-dark">Coins : {{user.coins}}</h5>
           <p class="card-text">Games Downloaded : 3</p>
           <p class="card-text">Reviews : None</p>
           <p class="card-text">Cart : 3</p>
@@ -43,7 +43,7 @@
   
   
   
-  <!-- ***** Gaming Library Start ***** -->
+  <!-- ***** Gaming Wishlist Start ***** -->
   <div class="gaming-library">
     
     {% if wishlists %}
@@ -83,8 +83,31 @@
 
 
   </div>
-  <!-- ***** Gaming Library End ***** -->
+  <!-- ***** Gaming wishlist End ***** -->
 
+<!-- ***** Purchased Games Start ***** -->
+<div class="gaming-library profile-library">
+  <div class="col-lg-12">
+    <div class="heading-section">
+      <h4><em>Your Purchased</em> Games</h4>
+    </div>
+    {% for purchased_game in purchased_games %}
+      <div class="item">
+        <ul>
+          <li><img src="/static/uploads/{{purchased_game.game.cover_image}}" alt="" class="templatemo-item"></li>
+          <li><h4>{{purchased_game.game.name}}</h4><span>{{purchased_game.game.category}}</span></li>
+          <li><h4>Date Purchased</h4><span>{{purchased_game.time_added}}</span></li>
+          <li><h4>Hours Played</h4><span>634 H 22 Mins</span></li>
+          <li><h4>Currently</h4><span>Download</span></li>
+          <li><div class="main-border-button border-no-active"><a href="#">Donwloaded</a></div></li>
+        </ul>
+      </div>
+    {% endfor %}
+    
+    
+  </div>
+</div>
+<!-- ***** Purchased Games End ***** -->
 
 {% endblock  %}
 

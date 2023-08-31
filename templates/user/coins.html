@@ -18,7 +18,9 @@
               {% endif %}
             </div>
             <div class="text-center">
-              <button class="btn btn-secondary">Buy Coins</button>
+              <a href="{% url 'payment' coin.id %}">
+                <button class="btn btn-secondary">Buy Coins</button>
+              </a>
             </div>
           </div>
         </div>

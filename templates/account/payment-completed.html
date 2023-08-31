@@ -1,0 +1,19 @@
+{% extends 'account/base.html' %}
+
+{% block content %}
+<div class="card custom-card text-white">
+    <div class="card-body p-5">
+        <h3 class="card-title mb-5 bg-success">Package Successful</h3>
+        <p class="card-text">You purchased {{pack.coins}} Coins for ₹ {{pack.price_after_offer}}</p>
+        <p class="card-text">Username : {{user.username}}</p>
+        <h4 class="card-text my-4">Transaction Id : {{transactionId}}  </h4>
+        <div class="text-center">
+            <a href="{% url 'coins' %}">
+                <button class="btn btn-secondary">
+                    Ok
+                </button>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock  %}
