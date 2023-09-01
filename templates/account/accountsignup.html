@@ -36,7 +36,10 @@
                     {% if error %}
                         <div class="error-msg" style="color:red;"">{{error}}</div>
                     {% endif %} 
-                    <input type="submit" class="login-btn" value="Login">
+                    <input type="submit" class="login-btn" value="Create">
+                    <div class="reg-log-footer text-center fs-6">
+                        Already registered ?  <a href="{% url 'acc-signin' %}">Sign In</a> here.
+                    </div>
                 </div>
             </form>
         </div>
