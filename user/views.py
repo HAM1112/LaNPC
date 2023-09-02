@@ -184,21 +184,18 @@ def browse(request):
     top_coins = Game.objects.order_by('-coins')[:3]
     other_games = Game.objects.all()[:6]
   
-    if request.user.is_authenticated :
-        try:
-            # get games purchased by the user
-            user_games = PurchasedGame.objects.filter(user=request.user)
-            for purchased_game in user_games:
-                date_added = purchased_game.time_added.date()
-                print(date_added)
-            print(user_games)
-        except Exception as e:
-            print("user is not signed in !!!!!!Please in sign in")
-            user_games = None  # Assign a default value or handle the error as needed
+    
+    try:
+        # get games purchased by the user
+        user_games = PurchasedGame.objects.filter(user=request.user)
+        for purchased_game in user_games:
+            date_added = purchased_game.time_added.date()
+            print(date_added)
+        print(user_games)
+    except Exception as e:
+        print("user is not signed in !!!!!!Please in sign in")
+        user_games = None  # Assign a default value or handle the error as needed
 
-    else :
-        return redirect('acc-signin')
-          
     context = {
         'games' : games,
         'categories' : categories,
