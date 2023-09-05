@@ -6,11 +6,13 @@ from django.views.decorators.cache import never_cache
 from django.contrib.auth import authenticate
 from django.contrib import auth
  
-from account.models import User
+from account.models import User , Transaction
+from user.models import Wishlist , PurchasedGame
 from .models import Game , Category , CoinsPack
 
 from .forms import GameForm
 
+import hashlib
 # Create your views here.
 
 @never_cache
@@ -37,11 +39,23 @@ def adminHome(request):
     
     users = User.objects.all()
     games = Game.objects.all()
+    purchase_history = PurchasedGame.objects.order_by('-time_added').all()
+    
+    transactions = Transaction.objects.all()
+    total_income = 0
+    for transaction in transactions:
+        if transaction.status:
+            total_income += transaction.coins_pack.price_after_offer
     
     context = {
         'usersCount' : users.count(),
         'gamesCount' : games.count(),
+        'income' : total_income,
+        'purchaseCount' : purchase_history.count(),
+        'purchase_history' : purchase_history,
+         
     }
+    
     print(users.count())
     return render(request , 'adminpanel/adminhome.html' , context )
 
@@ -141,8 +155,12 @@ def gamesList(request):
 def singleGame(request , gameId):
     
     game = Game.objects.get(pk=gameId)
+    purchases = PurchasedGame.objects.filter(game_id=gameId)
+    for purchase in purchases:
+        purchase.id = hashlib.sha256(str(purchase.id).encode()).hexdigest()
     context = {
         'game' : game,
+        'purchases' : purchases
     }
     
     return render(request , 'adminpanel/singlegame.html' , context)
@@ -219,9 +237,11 @@ def coinsList(request):
         return redirect('coinslist')
         
     coinsPack = CoinsPack.objects.all()
+    transaction_history = Transaction.objects.order_by('-id')
     
     context = {
         'coins' : coinsPack,
+        'transactions' : transaction_history,
     }
     
     return render(request , 'adminpanel/coinsdetails.html' , context)

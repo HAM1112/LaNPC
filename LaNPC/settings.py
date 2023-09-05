@@ -40,6 +40,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # third party apps
+    'paypal.standard.ipn',
+    
+    
+    # custom apps
     'account',
     'adminpanel',
     'user',
@@ -122,6 +127,7 @@ USE_I18N = True
 USE_TZ = True
 
 
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
@@ -154,3 +160,10 @@ EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 EMAIL_HOST_USER = config('EMAIL_ADD')
 EMAIL_HOST_PASSWORD = config('EMAIL_PASS')
+
+
+# paypal settings
+PAYPAL_RECEIVER_EMAIL = 'bizwhitejag@example.com'
+PAYPAL_TEST = True
+
+

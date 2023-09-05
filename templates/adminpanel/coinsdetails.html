@@ -41,4 +41,54 @@
     </div>
 </form>
 
+
+<h3 class="text-sm font-medium tracking-widest text-gray-900 uppercase lg:text-base my-8">
+    Pack Purchase History
+</h3>
+<div class="relative overflow-x-auto">
+    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+                <th scope="col" class="px-6 py-3">
+                    User 
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    No. Coins
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Price
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Transaction Id
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Status
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transaction in transactions %}
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        <a href="{% url 'user-details' transaction.user.id %}" class="text-fuchsia-500">{{transaction.user.username}}</a> 
+                    </th>
+                    <td class="px-6 py-4">
+                        {{transaction.coins_pack.coins}}
+                    </td>
+                    <td class="px-6 py-4">
+                        {{transaction.coins_pack.price_after_offer}}
+                    </td>
+                    <td class="px-6 py-4">
+                        {{transaction.transaction_id}}
+                    </td>
+                    <td class="px-6 py-4">
+                        {% if transaction.status  %} <span class="text-lime-500"> Success </span> {% else %} <span class="text-red-600"> Failed </span> {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            
+        </tbody>
+    </table>
+</div>
+
 {% endblock  %}

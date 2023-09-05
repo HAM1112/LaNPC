@@ -28,7 +28,54 @@
         </a>
       </div>
     </div>
-</div>
-  
-
-{% endblock  %}
+  {% if purchases %}
+  <div class="m-10">
+    <h3 class="text-sm font-medium tracking-widest text-gray-900 uppercase lg:text-base my-8">
+      {{game.name}} Purchase History
+    </h3>
+    <div class="relative overflow-x-auto">
+      <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-600 dark:text-gray-400">
+          <tr>
+            <th scope="col" class="px-6 py-3">
+              SI.No
+            </th>
+            <th scope="col" class="px-6 py-3">
+              User
+            </th>
+            <th scope="col" class="px-6 py-3">
+              Transaction Id
+            </th>
+            <th scope="col" class="px-6 py-3">
+              Date and Time
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for purchase in purchases %}
+          <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+            <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+              {{forloop.counter}} 
+            </th>
+            <td class="px-6 py-4 text-fuchsia-500">
+              <a href="{% url 'user-details' purchase.user.id %}">{{purchase.user.username}}</a>
+            </td>
+            <td class="px-6 py-4">
+              {{purchase.id}}
+            </td>
+            <td class="px-6 py-4">
+              {{purchase.time_added}}
+            </td>
+          </tr>
+          {% endfor %}
+              
+            </tbody>
+          </table>
+        </div>
+        
+      </div>
+    </div>
+    
+    {% endif %}
+    
+    {% endblock  %}

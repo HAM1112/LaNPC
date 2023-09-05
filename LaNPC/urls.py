@@ -22,5 +22,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('adminpanel/' , include('adminpanel.urls')),
     path('account/', include('account.urls')),
-    path('user/' , include('user.urls'))
+    path('user/' , include('user.urls')),
+    
+    # paypal url
+    path('paypal/' , include('paypal.standard.ipn.urls')),
 ]

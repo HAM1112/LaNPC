@@ -1,3 +1,7 @@
 myworld/
 
 .env
+
+**/migrations/*
+**/__pycache__
+static/
