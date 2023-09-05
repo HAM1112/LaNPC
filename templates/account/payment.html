@@ -4,9 +4,20 @@
 {% block content %}
 <div class="card custom-card text-white">
   <div class="card-body p-5">
-    <h3 class="card-title mb-5">Package confirmation</h3>
+    <h3 class="card-title mb-5">Package Details</h3>
     <p class="card-text">Buy {{coinpack.coins}} Coins with offer of {{coinpack.offer}}%</p>
     <p class="card-text">Real Price : ₹ {{coinpack.total_price}}</p>
+    <form method="POST">
+      {% csrf_token %}
+      <p class = "card-text">Coupon Number(optional)</p>
+      <input type="text" class="form-control bg-dark text-light" placeholder="Coupon" name="coupon">
+      {% if error %}
+        <p class = "text-danger"> {{error}} </p>
+      {% endif %}
+      <button type="submit" class="btn btn-primary mt-3">Apply </button>
+    </form>
+    
+
     <h4 class="card-text my-4">Price to Pay : ₹{{coinpack.price_after_offer}}  </h4>
     <div class="text-center py-3">
       {{form.render}}

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Game
+from .models import Game , Coupon
 
 class GameForm(forms.ModelForm):
     class Meta:
@@ -15,3 +15,8 @@ class GameForm(forms.ModelForm):
             'category': forms.Select(attrs={'class': 'mt-1 p-2 w-full border rounded-md text-black text-black'}),
             'featured': forms.CheckboxInput(attrs={'class': 'mt-1 text-black' }),
         }
+
+class CouponForm(forms.ModelForm):
+    class Meta:
+        model = Coupon
+        fields = ['code', 'discount', 'expiration_date', 'active']

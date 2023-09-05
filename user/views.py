@@ -4,6 +4,7 @@ from django.shortcuts import render , redirect
 from django.http import HttpResponse
 from adminpanel.models import Game , Category , CoinsPack
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 
 from .models import Wishlist , PurchasedGame
 
@@ -140,10 +141,14 @@ def addWishList(request , gameId):
     return redirect('game' , gameId=gameId)
 # deleting game from wishlist
 def delWishList(request, gameId):
-    user = request.user
-    wishlist = Wishlist.objects.get(user = user, game_id = gameId)
-    wishlist.delete()
-    return redirect('game' , gameId=gameId)
+    try:
+        user = request.user
+        wishlist = Wishlist.objects.get(user=user, game_id=gameId)
+        wishlist.delete()
+        return redirect('profile')
+    except ObjectDoesNotExist:
+        print(ObjectDoesNotExist)
+        redirect('profile')
 
 # display coins packages
 def coins(request):
@@ -151,6 +156,8 @@ def coins(request):
         del request.session['pack_id']
     if 'in_id' in request.session:
         del request.session['in_id']
+    if 'details' in request.session:
+        del request.session['details']
     coinsPack = CoinsPack.objects.order_by('coins')
     context = {
         'coins' : coinsPack,

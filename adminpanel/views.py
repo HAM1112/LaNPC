@@ -1,18 +1,20 @@
 from django.shortcuts import render
 
 from django.shortcuts import render , redirect
-from django.http import HttpResponse
+from django.http import HttpResponse , JsonResponse
 from django.views.decorators.cache import never_cache
 from django.contrib.auth import authenticate
 from django.contrib import auth
  
 from account.models import User , Transaction
 from user.models import Wishlist , PurchasedGame
-from .models import Game , Category , CoinsPack
+from .models import Game , Category , CoinsPack , Coupon
 
-from .forms import GameForm
+from .forms import GameForm , CouponForm
 
+from datetime import date , datetime
 import hashlib
+import uuid
 # Create your views here.
 
 @never_cache
@@ -250,3 +252,60 @@ def deleteCoins(request , coinsId):
     coinPack = CoinsPack.objects.get(id = coinsId)
     coinPack.delete()
     return redirect('coinslist')
+
+
+#-----------------------------------------------#
+# ------------- Coins RELATED ----------------- #
+#-----------------------------------------------#
+
+def couponList(request):
+    error = None
+
+    if request.method == "POST":
+        discount = request.POST.get('discount')
+        checked = request.POST.get('active')
+        exp_date_str = request.POST.get('date')
+        exp_date = datetime.strptime(exp_date_str, '%Y-%m-%d').date()
+        today_date = date.today()
+        
+        if exp_date <= today_date:
+            error = "Select tomorrow or above"
+        else :
+            active = True if checked == 'on' else False
+            unique_id = str(uuid.uuid4().int)
+            coupon_code = unique_id[:12]
+            
+            coupon = Coupon.objects.create(
+                code = coupon_code,
+                discount = discount,
+                expiration_date = exp_date,
+                active = active
+            )
+            coupon.save()
+    coupons = Coupon.objects.all().order_by('expiration_date' , 'created_at')
+    
+    context = {
+        'coupons' : coupons,
+    }
+    if error :
+        context['error'] = error
+    return render(request , 'adminpanel/coupon-list.html' , context )
+
+def deleteCoupon(request , couponId):
+    try:
+        coupon = Coupon.objects.get(id=couponId)
+        coupon.delete()
+    except Coupon.DoesNotExist:
+        print("some error inc encountered")
+    return redirect('couponslist')
+def toggoleCouponActive(request, couponId):
+    try:
+        coupon = Coupon.objects.get(id=couponId)
+        coupon.active = not coupon.active
+        print(coupon)
+        print("reached herex")
+        coupon.save()
+        return JsonResponse({'success': True, 'active': coupon.active})
+    except Coupon.DoesNotExist:
+        return JsonResponse({'success': False})
+    

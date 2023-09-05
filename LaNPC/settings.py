@@ -151,7 +151,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'account.User'
 
-
 #for sending mail
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -160,7 +159,6 @@ EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 EMAIL_HOST_USER = config('EMAIL_ADD')
 EMAIL_HOST_PASSWORD = config('EMAIL_PASS')
-
 
 # paypal settings
 PAYPAL_RECEIVER_EMAIL = 'bizwhitejag@example.com'

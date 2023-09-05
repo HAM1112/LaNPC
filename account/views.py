@@ -17,8 +17,8 @@ from django.conf import settings
 from decouple import config
 from django.contrib.auth.decorators import login_required
 
-from .models import User , Transaction
-from adminpanel.models import CoinsPack
+from .models import User , Transaction , CouponUsage
+from adminpanel.models import CoinsPack, Coupon
 
 
 def signUp(request):
@@ -79,16 +79,29 @@ def signIn(request):
             
 @login_required(login_url='/account/signin/')
 def payment(request , packId):
+    error = None
+    coupon_offer = 0
+    
+    if request.method == "POST":
+        coupon = request.POST.get('coupon')
+        try:
+            coupon = Coupon.objects.get(code=coupon)
+            
+        except Coupon.DoesNotExist:
+            print("Coupon does not exist")
+
+        
     pack = CoinsPack.objects.get(id = packId)
     item_name = f"Pack of {pack.coins} coins"
-    unique_invoice_id = uuid.uuid4().hex
-    
+    unique_invoice_id = uuid.uuid4().hex   
     request.session['in_id'] = unique_invoice_id
     request.session['pack_id'] = packId
     
+    amount = pack.price_after_offer - ((coupon_offer/10) * pack.price_after_offer )
+    print(amount)
     paypal_dict = {
         "business": settings.PAYPAL_RECEIVER_EMAIL ,
-        "amount": pack.price_after_offer,
+        "amount": amount,
         "item_name": item_name ,
         "invoice": unique_invoice_id,
         "notify_url": request.build_absolute_uri(reverse('paypal-ipn')),
@@ -101,6 +114,8 @@ def payment(request , packId):
     context = {
         "form": form,
         'coinpack' : pack,
+        'amount' : amount,
+        'error' : error,
         }
     return render(request , 'account/payment.html' , context)
 
@@ -109,6 +124,7 @@ def payment_completed_view(request):
     if request.session.get('pack_id') and request.session.get('in_id'):
         packId = request.session.get('pack_id')
         transaction_id = request.session.get('in_id')
+        
         userId = request.user.id
         
         pack = CoinsPack.objects.get(id=packId)
@@ -126,12 +142,13 @@ def payment_completed_view(request):
         user.save()          
         
         context = {
-            'transactionId' : transaction_id,
+            'transaction' : transaction,
             'pack' : pack,
             'user' : request.user,
         }
         del request.session['pack_id']
         del request.session['in_id']
+        
         return render(request , 'account/payment-completed.html' , context)
     else:
         return redirect('coins')
@@ -159,6 +176,7 @@ def payment_failed_view(request):
         
         del request.session['pack_id']
         del request.session['in_id']
+        
         
         return render(request , 'account/payment-failed.html' , context)
 

@@ -25,4 +25,9 @@ urlpatterns = [
     path('coins/' , views.coinsList , name="coinslist"),
     path('delCoins/<int:coinsId>' , views.deleteCoins , name="delete-coins"),
     
+    # Coupon related
+    path('coupons/', views.couponList , name="couponslist" ),
+    path('delcoupon/<int:couponId>', views.deleteCoupon , name="delete-coupon" ),
+    path('togCouponActive/<int:couponId>', views.toggoleCouponActive , name="toggle-coupon-active" ),
+    
 ]

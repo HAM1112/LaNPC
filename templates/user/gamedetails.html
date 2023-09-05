@@ -71,7 +71,12 @@
             <div class="col-lg-12">
               {% if user.is_authenticated %}
                 <div class="main-border-button">
-                  <a href="{% url 'buy-game' game.id %}">Buy {{game.name}} Now!!</a>
+                  {% if wishlist %}
+                    <a href="{% url 'buy-game' game.id %}">Buy {{game.name}} Now!!</a>
+                  {% else %}
+                    <a href="{% url 'buy-game' game.id %}">Download</a>
+                  {% endif %}
+                  
                   <a href="#" style="border: 2px solid yellow; color: yellow;">Add to Cart</a>
                   {% if wishlist %}
                     <a href="{% url 'del-wishlist' game.id %}" style="border: none ;color: white; background-color: red;">Remove from WishList</a>
