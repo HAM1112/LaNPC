@@ -3,5 +3,11 @@ myworld/
 .env
 
 **/migrations/*
-**/__pycache__
-static/
+__pycache__/
+/vendor/
+# Ignore all .pyc files
+*.pyc
+
+# Ignore __pycache__ directories
+__pycache__/
+LaNPC/__pycache__/settings.cpython-311.pyc
