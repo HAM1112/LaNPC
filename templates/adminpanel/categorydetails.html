@@ -1,11 +1,10 @@
 {% extends 'adminpanel/layout.html' %}
+
+{% block title %}Catogory{% endblock title %}
 {% block content %}
-    
 <div>
     <canvas id="chartjs-doughnut"></canvas>
 </div>
-
-
 <div class="container mx-auto mt-8 grid grid-cols-4 gap-4">
     <!-- Card 1 -->
     {% for category in categories %}
@@ -15,10 +14,7 @@
                 <button class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Delete</button>
             </a>
         </div>
-        
-    {% endfor %}
-    
-    
+    {% endfor %}  
     <!-- Add more cards as needed -->
 </div>
 <form method="POST">
@@ -33,7 +29,6 @@
 </form>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
 
     window.theme = {
@@ -41,8 +36,6 @@
         success: "#9400FF",
         warning: "#A31ACB",
     };
-    
-
     new Chart(document.getElementById("chartjs-doughnut"), {
         type: "doughnut",
         data: {
@@ -70,8 +63,6 @@
           maintainAspectRatio: false,
           cutoutPercentage: 65,
         }
-      });
-      
+      });  
 </script>
-
 {% endblock  %}

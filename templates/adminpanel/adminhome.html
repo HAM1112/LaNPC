@@ -1,5 +1,7 @@
 {% extends 'adminpanel/layout.html' %}
 
+{% block title %}Home{% endblock title %}
+
 {% block content %}
 <h1 class="text-4xl font-bold mb-4 text-teal-500">Welcome to LaNPC</h1>
 <div class="px-4 py-16 mx-auto sm:max-w-xl md:max-w-full lg:max-w-screen-xl md:px-24 lg:px-8 lg:py-20">
@@ -38,42 +40,24 @@
     <div class="col-span-2 bg-gray-500 rounded-lg shadow-lg p-4">
       <!-- Content for Card 1 -->
       <h2 class="text-xl text-black text-center font-semibold my-5">Monthly Income</h2>
-      
       <div>
           <canvas id="chartjs-bar"></canvas>
       </div>
     </div>
-  
     <!-- Card 2 (Less Wider) -->
     <div class="col-span-1 bg-gray-500 rounded-lg shadow-lg p-4 ">
       <!-- Content for Card 2 -->
       <h2 class="text-xl text-black text-center font-semibold my-5">Weekly Income</h2>
-
       <div >
           <canvas id="chartjs-line" height="300"></canvas>
       </div>
     </div>
   </div>
-  
-
-
-
-
-
-
-
-
-
 <!-- Chart end -->
-
 <!-- Latest Review History -->
-
-
 <h3 class="text-sm font-medium tracking-widest text-gray-900 uppercase lg:text-base my-8">
     Game Purchase History
 </h3>
-
-
 <div class="relative overflow-x-auto">
     <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -109,21 +93,14 @@
                     </td>
                 </tr>
             {% endfor %}
-            
         </tbody>
     </table>
 </div>
-
-
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <!-- Latest purchase History -->
-
-
 <h3 class="text-sm font-medium tracking-widest text-gray-900 uppercase lg:text-base my-8">
   Latest Reviews
 </h3>
-
-
 <div class="relative overflow-x-auto">
     <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -162,18 +139,12 @@
                 </td>
                 <td class="px-6 py-4">
                     {{ review.time_created|date:"H:i:s" }}
-                </td>
-                
+                </td>     
             </tr>
             {% endfor %}
-            
         </tbody>
     </table>
-</div>
-
-
-
-   
+</div>  
     <script>
         function printDiv(divId) {
             var printContents = document.getElementById(divId).innerHTML;
@@ -183,16 +154,9 @@
             document.body.innerHTML = originalContents;
         }
     </script>
-
-
-
-    
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
     const ctx = document.getElementById('chartjs-bar');
-
     new Chart(ctx, {
         type: "bar",
         data: {
@@ -230,11 +194,9 @@
             ]
         },
         options: {
-           
             scales: {
                 y: {
-                    beginAtZero: true, // Start the y-axis at zero
-                    
+                    beginAtZero: true, // Start the y-axis at zero  
                     ticks: {
                         color: "black",
                      }
@@ -292,7 +254,6 @@
             scales: {
                 y: {
                     beginAtZero: true, // Start the y-axis at zero
-                    
                     ticks: {
                         color: "black",
                      }
@@ -318,17 +279,5 @@
             },
         }
       });
-      
-
 </script>
-
-  
-   
-  
-   
-
-
-
-
-
 {% endblock content %}
