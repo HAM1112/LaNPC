@@ -1,3 +1,11 @@
+# Standard library
+from datetime import date , datetime ,timedelta
+import uuid , hashlib , random
+
+# Django
+from django.utils import timezone
+from django.db.models import Count , Sum
+from django.db.models.functions import ExtractMonth, ExtractYear
 from django.shortcuts import render
 from django.core import serializers
 from django.shortcuts import render , redirect
@@ -6,22 +14,17 @@ from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import authenticate
 from django.contrib import auth
-from django.db.models.functions import ExtractMonth, ExtractYear
-from django.db.models import Count , Sum
+
+# local Django
 from account.models import User , Transaction
 from user.models import Wishlist , PurchasedGame , Review
 from .models import Game , Category , CoinsPack , Coupon 
 from .utils import get_monthly_income_for_current_year , get_income_by_month_last_year , get_income_this_week, get_income_last_week , random_hex
 from .forms import GameForm , CouponForm
-from django.utils import timezone
-from datetime import date , datetime ,timedelta
 
-import uuid , hashlib , random
 # Create your views here.
-
 def is_superuser(user):
     return user.is_superuser
-
 
 @never_cache
 def signIn(request):    
