@@ -105,36 +105,28 @@ def get_income_last_week():
         date = entry['timestamp__date']
         total_income = entry['total_income']
         income_by_day[date] = total_income
-
     # Print or return the income for each day
     for date, total_income in income_by_day.items():
         print(f"Income on {date.strftime('%A')}: ${total_income:.2f}")
-
     return income_by_day
 
 def random_hex(id):
-    number_to_hash = id
+    number_to_hash = id  # same id to be hashed
 
+    #convert the id to str
     number_str = str(number_to_hash)
 
+    # hash the converted string  using haslib.sha256()
     hash_obj = hashlib.sha256()
-
     hash_obj.update(number_str.encode())
     hashed_number = hash_obj.hexdigest()
-    
-    
-
-    print(f"Original Number: {number_to_hash}")
-    print(f"Hashed Number: {hashed_number}")
-    
     number = 100
 
     for digit_str in number_str:
         digit = int(digit_str)  
         number *= digit
-    
+    # generating the hex color code
     start_position = number % (len(hashed_number) - 6) 
     random_subset = hashed_number[start_position:start_position + 6]
-    hex_code = f"#{random_subset}"
-    
+    hex_code = f"#{random_subset}" 
     return hex_code
