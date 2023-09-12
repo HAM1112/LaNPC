@@ -24,14 +24,17 @@ def is_superuser(user):
 
 
 @never_cache
-def signIn(request):
+def signIn(request):    
+    # check if user is already logged-in  
     if request.user.is_authenticated and request.session.get('admin'):
         return redirect('admin-home')
+    
+    # validate details 
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
         admin = authenticate(request , username = username, password = password)
-    
+        # check if user is admin
         if admin is not None and admin.is_superuser:
             request.session['admin'] = username
             auth.login(request , admin)
@@ -43,30 +46,32 @@ def signIn(request):
 @never_cache
 @user_passes_test(is_superuser)
 def adminHome(request):
+    # validating admin
     if request.session.get('admin') is None:
         return redirect('admin-signin')
     
+    # retreive all games and users ............so on
     users = User.objects.all()
     games = Game.objects.all()
     purchase_history = PurchasedGame.objects.order_by('-time_added').all()
-    
     transactions = Transaction.objects.all()
+    
     total_income = 0
+    # calculate total income 
     for transaction in transactions:
         if transaction.status:
             total_income += transaction.coins_pack.price_after_offer
-    
    
+    # calculate current montly income
     monthly_income = get_monthly_income_for_current_year()
+    # calculate last montly income
     last_year_income = get_income_by_month_last_year()
-    
+    # calculate this week income
     this_week = get_income_this_week()
+    # calculate last week income
     last_week = get_income_last_week()
-    print(last_week)
     
     latest_reviews = Review.objects.all()[:5]
-    
-    
     context = {
         'usersCount' : users.count(),
         'gamesCount' : games.count(),
@@ -97,20 +102,17 @@ def adminLogout(request):
 # Display all users in a table
 @user_passes_test(is_superuser)
 def usersList(request):
-    
     # users = User.objects.filter(is_superuser=False)
-    users = User.objects.all()
-    
+    users = User.objects.all()   
     context = {
         'users' : users,
     }
-    
     return render(request , 'adminpanel/usersdetails.html' , context)
 
 # diplay details of single users
 @user_passes_test(is_superuser)
 def singleUser(request , userId):
-    
+    # retreive all neccassary details
     user = User.objects.get(id=userId)
     reviews = Review.objects.filter(user = request.user)
     purchases = PurchasedGame.objects.filter(user=request.user)
@@ -123,16 +125,13 @@ def singleUser(request , userId):
         'no_reviews' : reviews.count(),
         
     }
-    
     return render(request , 'adminpanel/singleuser.html' , context)
 @user_passes_test(is_superuser)
 def editUser(request , userId):
-    
     user = User.objects.get(id=userId)
     context = {
         'user' : user,
     }
-    
     return render(request , 'adminpanel/edituser.html' , context)
     
     
@@ -152,11 +151,10 @@ def gamesList(request):
         category = request.POST.get('category')
         # featured = request.POST.get('featured')
         banner_image = request.FILES.get('bannerImage')  # Retrieve uploaded file
-        cover_image = request.FILES.get('coverImage') 
-        
+        cover_image = request.FILES.get('coverImage')    
         featured = True if request.POST.get('featured') else False
 
-        
+        # create game instance
         game = Game(
             name=name,
             description = description,
@@ -177,11 +175,10 @@ def gamesList(request):
     print()
     return render(request, 'adminpanel/gamesdetails.html', context)
 
-
 # display single game in detail
 @user_passes_test(is_superuser)
 def singleGame(request , gameId):
-    
+    # get the game details purchase details
     game = Game.objects.get(pk=gameId)
     purchases = PurchasedGame.objects.filter(game_id=gameId)
     for purchase in purchases:
@@ -191,11 +188,11 @@ def singleGame(request , gameId):
         'game' : game,
         'purchases' : purchases
     }
-    
     return render(request , 'adminpanel/singlegame.html' , context)
 
 @user_passes_test(is_superuser)
 def editGame(request , gameId):
+    # get details from post
     if request.method == "POST":
         name = request.POST.get('name')
         description = request.POST.get('description')
@@ -203,8 +200,8 @@ def editGame(request , gameId):
         category = request.POST.get('category')
         featured = True if request.POST.get('featured') else False
         
+        # get the game and update the values
         game = Game.objects.get(id=gameId)
-        
         # updating values
         game.name = name
         game.description = description
@@ -224,10 +221,10 @@ def editGame(request , gameId):
 
 @user_passes_test(is_superuser)
 def deleteGame(request , gameId):
+    # get game and delete it
     game = Game.objects.get(pk=gameId)
     game.delete()
     return redirect('gameslist')
-    
 
 #-----------------------------------------------#
 # ------------- CATEGORY RELATED -------------- #
@@ -237,14 +234,14 @@ def deleteGame(request , gameId):
 # Listing all categories
 @user_passes_test(is_superuser)
 def categoriesList(request):
-    
+    # add new category
     if request.method == 'POST' and request.POST['category'] != '':
         category = request.POST['category']
         Category.objects.create(name=category)
         return redirect('categorieslist')
-    
+    # get all categories all number of games in them
     categories = Category.objects.annotate(game_count=Count('game')).order_by('name')
-    
+    # generate random hex . for graph
     for category in categories:
         category.bg_color = random_hex(category.id)
    
@@ -255,6 +252,7 @@ def categoriesList(request):
 
 @user_passes_test(is_superuser)
 def deleteCategory(request , categoryId):
+    # get category and delete it
     category = Category.objects.get(pk = categoryId)
     category.delete()
     return redirect('categorieslist')
@@ -264,6 +262,7 @@ def deleteCategory(request , categoryId):
 #-----------------------------------------------#
 @user_passes_test(is_superuser)
 def coinsList(request):
+    # add new coin package
     if request.method == "POST" and request.POST.get('add_coin') == "add_coin":
         coins = request.POST.get('coins')
         offer = request.POST.get('offer')
@@ -271,6 +270,7 @@ def coinsList(request):
         coinPack.save()
         return redirect('coinslist')
     
+    # for sorting and retriving specific transaction history . used in ajax
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
         selected_option = request.POST.get('option')
         start_date = request.POST.get('start_date')
@@ -285,10 +285,8 @@ def coinsList(request):
         
         if selected_option != "all":
             transaction_history = transaction_history.filter(user_id=selected_option)
-        
-        print(transaction_history.count())
-        
-        
+
+        # convert queries into list of dictonaties for giving response to front . Ajax
         transaction_list = [
             {
                 'id': transaction.id,
@@ -311,16 +309,18 @@ def coinsList(request):
                 'user_id' : user.id,
 
             } for user in users_with_transactions]
-                
+        
+        #semd the data as Json response  
         data = {
             'transaction_count' : transaction_history.count(),
             'transactions' : transaction_list,
             'users' : users_data,
         }
         return JsonResponse(data)
-        
+    # get coin pack and transaction details
     coinsPack = CoinsPack.objects.all()
     transaction_history = Transaction.objects.order_by('-id')
+    # convert queries into list of dictonaties for giving response to front . Ajax
     transaction_list = [
         {
             'id': transaction.id,
@@ -337,20 +337,19 @@ def coinsList(request):
     ]
     
     users_with_transactions = User.objects.filter(transaction__isnull=False).distinct()
+    # convert queries into list of dictonaties for giving response to front . Ajax
     users_data = [
         {
             'username' : user.username ,
             'user_id' : user.id,
 
         } for user in users_with_transactions]
-            
-    print(users_with_transactions)
+
     context = {
         'coins' : coinsPack,
         'transactions' : transaction_list,
         'users' : users_data,
     }
-    
     return render(request , 'adminpanel/coinsdetails.html' , context)
 
 @user_passes_test(is_superuser)
@@ -367,7 +366,7 @@ def deleteCoins(request , coinsId):
 @user_passes_test(is_superuser)
 def couponList(request):
     error = None
-
+    # generate new coupon
     if request.method == "POST":
         discount = request.POST.get('discount')
         checked = request.POST.get('active')
@@ -389,10 +388,8 @@ def couponList(request):
                 active = active
             )
             coupon.save()
-            
+    # retrieve all coupon instances
     coupons = Coupon.objects.all().order_by('expiration_date' , 'created_at')
-    
- 
     context = {
         'coupons' : coupons,
     }
@@ -402,6 +399,7 @@ def couponList(request):
 
 @user_passes_test(is_superuser)
 def deleteCoupon(request , couponId):
+    # if coupon exists delete it 
     try:
         coupon = Coupon.objects.get(id=couponId)
         coupon.delete()
@@ -410,6 +408,7 @@ def deleteCoupon(request , couponId):
     return redirect('couponslist')
 @user_passes_test(is_superuser)
 def toggoleCouponActive(request, couponId):
+    # if coupon exists toggle its status 
     try:
         coupon = Coupon.objects.get(id=couponId)
         coupon.active = not coupon.active
@@ -419,4 +418,3 @@ def toggoleCouponActive(request, couponId):
         return JsonResponse({'success': True, 'active': coupon.active})
     except Coupon.DoesNotExist:
         return JsonResponse({'success': False})
-    
