@@ -12,33 +12,36 @@ class ChatConsumer(AsyncConsumer):
     async def websocket_connect(self, event):
         print('connect' , event)
         user = self.scope['user']
-        
+
+        #  get game id from url query
         query_string = self.scope.get("query_string", b"").decode("utf-8")
         match = re.search(r"game_id=([^&]+)", query_string)
         if match:
             game_id = match.group(1)
         else:
-            # Handle the case where game_id is not found in the query parameters
             game_id = None
-            
+        
+        # creating channels for chatroom
         chat_room = f"user_chatroom_{game_id}"
         self.chat_room = chat_room
         await self.channel_layer.group_add(
             chat_room,
             self.channel_name
         )
+        # send data
         await self.send({
             'type' : 'websocket.accept',
         })
         
     async def websocket_receive(self, event):
         print('recevie' , event)
+        # recive date through websocket
         received_data = json.loads(event['text'])
+        # retrieve message and neccessary details from json data
         msg = received_data.get('message')
         send_by_id = received_data.get('sent_by')
         send_to_id = received_data.get('sent_to')
-        # message = self.create_message(send_by_id, send_to_id, msg)
-        if not msg:
+        if not msg: # check if msag in empty
             print("eroor : empty message")
             return False
         
@@ -48,26 +51,17 @@ class ChatConsumer(AsyncConsumer):
             print("Error : sent by user is incorrect")
         if not sent_to_game:
             print("Error : send to user is incorrect")
-            
+        
+        # saving the message to database   
         message = await self.create_message(send_by_id, send_to_id, msg)
         
-        other_user_chat_room = f"user_chatroom_{send_to_id}"
         self_user = self.scope['user']
-         
+        # send respose to websocket
         response = {
             'message' : msg,
             'send_by' : self_user.id,
             'send_by_name' : self_user.username
-            
         }
-        
-        # await self.channel_layer.group_send(
-        #     other_user_chat_room,
-        #     {
-        #         'type' : 'chat_message',
-        #         'text' : json.dumps(response)
-        #     }
-        # )
         
         await self.channel_layer.group_send(
             self.chat_room,
@@ -76,13 +70,7 @@ class ChatConsumer(AsyncConsumer):
                 'text' : json.dumps(response)
             }
         )
-        # await self.send({
-        #     'type' : 'websocket.send',
-        #     'text' : json.dumps(response)
-        # })
-        
-        
-        
+      
     async def websocket_disconnect(self, event):
         print('disconnect' , event)
         
@@ -92,20 +80,17 @@ class ChatConsumer(AsyncConsumer):
             'type' : 'websocket.send',
             'text' : event['text']
         })
-    
-    
-    
+
+
     @database_sync_to_async
     def get_user_object(self , user_id):
-        
-        
+
         qs = User.objects.filter(id=user_id)
     
         if qs.exists():
             obj = qs.first()
         else:
             obj = None
-        # print(obj , 'userrrrrrrrrrrrrrrrrrrrrrrr')
         return obj
         
     @database_sync_to_async
@@ -115,8 +100,7 @@ class ChatConsumer(AsyncConsumer):
             obj = qs.first()
         else :
             obj = None
-            
-        # print(obj , "gameeeeeeeeeeeeeeeeeeeeeeeeee")
+
         return obj
     
     @sync_to_async
@@ -128,6 +112,5 @@ class ChatConsumer(AsyncConsumer):
             message.save()
             return message
         except Exception as e:
-            # Handle exceptions or errors here
             print(f"Error creating message: {e}")
             return None
