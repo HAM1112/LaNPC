@@ -1,22 +1,24 @@
-from django.shortcuts import render
-from django.contrib.auth import logout
-from django.shortcuts import render , redirect
-from django.http import HttpResponse
-from adminpanel.models import Game , Category , CoinsPack
-from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ObjectDoesNotExist
-
-from .models import Wishlist , PurchasedGame , Review , Message
-from account.models import Transaction , User
-
-from datetime import datetime
-
+# standard library
 import os
 import io
 import zipfile
-from django.core.files.storage import default_storage
-from django.views.decorators.csrf import csrf_exempt
+from datetime import datetime
+
+
+# Django
+from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render , redirect
+from django.http import HttpResponse
 from django.conf import settings
+from django.core.files.storage import default_storage
+from django.core.exceptions import ObjectDoesNotExist
+from django.views.decorators.csrf import csrf_exempt
+
+# local Django
+from .models import Wishlist , PurchasedGame , Review , Message
+from account.models import Transaction , User
+from adminpanel.models import Game , Category , CoinsPack
 
 
 # --------------------------------------------------#
@@ -25,31 +27,42 @@ from django.conf import settings
 
 # @login_required()
 def home(request):
+    # get user details from request.user
     user = request.user
-    if user.id:
-        mygames = PurchasedGame.objects.filter(user=request.user)
-        print(request.user)
-    else:
-        mygames = False
+    
+    try:
+        # get all games of the user . empty if there is no game
+        mygames = PurchasedGame.objects.filter(user=request.user) if request.user.id else []
+    except Exception as e:
+        # Handle the exception here (e.g., log it or provide an appropriate response)
+        print(e)
+        mygames = []  # Assign an empty list in case of an exception
+
+        
+    # retrieve all game order by the date (newest games first)  
     latest_games = Game.objects.order_by('-time_of_creation')[:8]
+    
+    # adding context 
     context = {
         'latests' : latest_games,
         'mygames' : mygames,
     }
-    print(request.user.is_authenticated) 
-    print(latest_games[0])
+    
     return render(request , 'user/home.html' , context)
 
 # --------------------------------------------------#
 # ------------------Game details--------------------#
 # --------------------------------------------------#
 def gameDetails(request , gameId):
+    # retrieve game using gameid in the url 
     game = Game.objects.get(id=gameId)
-    print(gameId)
+    
     if request.method == "POST":
+        # retrieve data from post
         rating  = request.POST.get('rate')
         description = request.POST.get('description')
-
+        
+        # save review to the database
         review = Review.objects.create(
             user = request.user,
             game = game,
@@ -57,11 +70,13 @@ def gameDetails(request , gameId):
             description = description
         )
         review.save()
-        return redirect('game' , gameId = gameId )
+        
+        return redirect('game' , gameId = gameId ) # redirect to same page  (redirection is for avoiding resubmisson)
     
-    count = 0
-    total = 0
+    count = 0 # total number of reviews
+    total = 0 
     reviews = Review.objects.filter(game=game)
+    
     for review in reviews:
         count += 1
         total += review.rating
@@ -77,6 +92,8 @@ def gameDetails(request , gameId):
     wishlist = Wishlist.objects.filter(user = request.user , game = game).exists()
     
     no_of_downloads_left = 3
+    
+    # check wheather the game is purchased or not
     try:
         purchased_game = PurchasedGame.objects.get(game=game, user=request.user)
         purchased = True
@@ -86,7 +103,6 @@ def gameDetails(request , gameId):
         purchased = False
 
     print(no_of_downloads_left)
-    
     context = {
         'game' : game,
         'related' : related_games,
@@ -100,24 +116,27 @@ def gameDetails(request , gameId):
     return render(request , 'user/gamedetails.html' , context )
 
 def allGames(request):
+    # filter and sort game based on the requirement 
     if request.method == "POST":
         selected = request.POST['selected']
         search = request.POST['search']
         category = request.POST['category']
-        print(selected)
-        print(search)
-        print(category)
+        
+        # if category is all give all category 
         if category == "All":
+            # serach empty then get all games
             if search == '':
                 games = Game.objects.all()
-            else :
+            
+            else : #search with keyword
                 games = Game.objects.filter(name__istartswith=search)
         else:
             if search == '':
                 games = Game.objects.filter(category=category)
             else :
                 games = Game.objects.filter(name__istartswith=search , category=category)
-                
+        
+        # sorting based on the given option
         if selected == 'latest':
             games = games.order_by('-time_of_creation')
         elif selected == 'oldest':
@@ -126,8 +145,10 @@ def allGames(request):
             games = games.order_by('-coins')
         elif selected == 'lowcoin' :
             games = games.order_by('coins')
-        
+            
+        #  passing all categories for the select/option
         categories = Category.objects.order_by('name')
+        
         context = {
             'games' : games,
             'selected' : selected,
@@ -137,7 +158,7 @@ def allGames(request):
             'search' : search,
         }
         return render(request , 'user/exploregames.html' , context )
-        
+    
     games = Game.objects.all()
     categories = Category.objects.all()
     context = {
@@ -156,14 +177,16 @@ def categoryGame(request , categoryId):
     return render(request, 'user/exploregames.html' , context)
 
 def browse(request):
+    # retrieve all games and all categories
     games = Game.objects.all()
     categories = Category.objects.all()
     
     top_coins = Game.objects.order_by('-coins')[:3]
     other_games = Game.objects.all()[:6]
   
-    if request.user :
+    if request.user.is_authenticated :
         try:
+            # get games purchased by the user
             user_games = PurchasedGame.objects.filter(user=request.user)
             for purchased_game in user_games:
                 date_added = purchased_game.time_added.date()
@@ -174,7 +197,7 @@ def browse(request):
             user_games = None  # Assign a default value or handle the error as needed
 
     else :
-        user_games = None
+        return redirect('acc-signin')
           
     context = {
         'games' : games,
@@ -185,16 +208,19 @@ def browse(request):
     }   
     return render(request , 'user/browse.html' , context )
 
-@login_required
+@login_required # login is must for buying game 
 def buyGame(request , gameId):
     
     game = Game.objects.get(id=gameId)
     user = request.user
-    
-    
+    if not user.is_authenticated: # check weather user is authenticated
+        return redirect('acc-signin')
+     
+    #  if already purchased redirect to the game page
     if PurchasedGame.objects.filter(user=user, game=game).exists():
         return redirect('game' , gameId)
     
+    # check the nessasary conditions of the webpage
     if user.coins >= game.coins:
         purchase = PurchasedGame.objects.create(user=user , game=game)
         purchase.save()
@@ -214,7 +240,7 @@ def buyGame(request , gameId):
             pass
         
         return redirect('profile')
-    else:
+    else: # return to coins page if no enought coins
         return redirect('coins')
 
 # Adding game to wishlist
@@ -226,8 +252,8 @@ def addWishList(request , gameId):
     return redirect('game' , gameId=gameId)
 # deleting game from wishlist
 def delWishList(request, gameId):
+    
     try:
-        print("i am tryingg ")
         user = request.user
         wishlist = Wishlist.objects.get(user=user, game_id=gameId)
         wishlist.delete()
@@ -238,6 +264,7 @@ def delWishList(request, gameId):
 
 # display coins packages
 def coins(request):
+    # clearing session if this page is redirected from payment canceled or payement succesful page 
     if 'pack_id' in request.session:
         del request.session['pack_id']
     if 'in_id' in request.session:
@@ -248,6 +275,7 @@ def coins(request):
         del request.session['amount']
     if 'coupon_id' in request.session:
         del request.session['coupon_id']
+        
     coinsPack = CoinsPack.objects.order_by('coins')
     context = {
         'coins' : coinsPack,
@@ -256,6 +284,7 @@ def coins(request):
 
 # display profile page
 def profile(request):
+    # update profile details
     if request.method == "POST":
         username = request.POST.get('username')
         first_name = request.POST.get('firstname')
@@ -273,6 +302,10 @@ def profile(request):
         return redirect('profile')
     
     user = request.user
+    if not user.is_authenticated: # user validation
+        return redirect('acc-signin')
+    
+
     wishlists = Wishlist.objects.filter(user = user)
     purchased_games = PurchasedGame.objects.filter(user = user)
     
@@ -290,33 +323,45 @@ def profile(request):
     } 
     return render(request , 'user/profile.html' , context)
 
+# download a zip file containing game images
 @csrf_exempt  
 def download_game_images(request, game_id):
+    # retrieve the game 
     game = Game.objects.get(pk=game_id)
-    
     purchase = PurchasedGame.objects.get(game_id = game_id , user = request.user)
     
+    # only three downloads are available
     if purchase.download_count < 3 :
+        # creating a temperary directory
         temp_dir = os.path.join(settings.MEDIA_ROOT, 'temp')
         os.makedirs(temp_dir, exist_ok=True)
 
-        
+        # Create an in-memory ZIP buffer
         zip_buffer = io.BytesIO()
         with zipfile.ZipFile(zip_buffer, 'w') as zipf:
 
+            # Loop through the banner_image and cover_image associated with the game
             for image in [game.banner_image, game.cover_image]:
                 if image:
+                    
+                    # Get the absolute file path of the image
                     image_path = default_storage.path(image.name)
+                    
+                    # Add the image to the ZIP file with its original name
                     zipf.write(image_path, os.path.basename(image_path))
-
+        # deleteing ther temperary directory
         os.rmdir(temp_dir)
 
-       
+       # Create an HTTP response with the ZIP archive content
         response = HttpResponse(zip_buffer.getvalue(), content_type='application/zip')
+        
+        # Set the Content-Disposition header to suggest a filename for the downloaded ZIP file
         response['Content-Disposition'] = f'attachment; filename="{game.name}_images.zip"'
         
+        # Add a JavaScript snippet to reload the current page after the download is initiated
         response.write('<script>window.onload = function() { location.reload(); }</script>')
         
+        # Update the download count for the game's purchase record
         purchase.download_count += 1
         purchase.save()
         if purchase.download_count == 3:
@@ -329,10 +374,10 @@ def download_game_images(request, game_id):
     
 
 def chatRooms(request , game_id):
-    # if request.method == "POST":
-    #     print(request.POST.get('message'))
-    
+    # retrieve all purchased games for displaying in the side panel
     purchased_games = PurchasedGame.objects.filter(user = request.user)
+    
+    # retrieve the game of chat room
     game = Game.objects.get(id=game_id)
     messages = Message.objects.filter(game = game)
     context = {
@@ -342,12 +387,7 @@ def chatRooms(request , game_id):
     }
     return render(request , 'user/chatrooms.html', context)
 
-
-
 # user logout 
 def userLogout(request):
     logout(request)
     return redirect('home')
-
-
-
