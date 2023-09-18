@@ -5,16 +5,17 @@ from django.http import HttpResponse , JsonResponse
 from django.views.decorators.cache import never_cache
 from django.contrib.auth import authenticate
 from django.contrib import auth
- 
+from django.db.models.functions import ExtractMonth, ExtractYear
+from django.db.models import Count , Sum
 from account.models import User , Transaction
 from user.models import Wishlist , PurchasedGame
-from .models import Game , Category , CoinsPack , Coupon
-
+from .models import Game , Category , CoinsPack , Coupon 
+from .utils import get_monthly_income_for_current_year , get_income_by_month_last_year , get_income_this_week, get_income_last_week , random_hex
 from .forms import GameForm , CouponForm
+from django.utils import timezone
+from datetime import date , datetime ,timedelta
 
-from datetime import date , datetime
-import hashlib
-import uuid
+import uuid , hashlib , random
 # Create your views here.
 
 @never_cache
@@ -49,16 +50,28 @@ def adminHome(request):
         if transaction.status:
             total_income += transaction.coins_pack.price_after_offer
     
+   
+    monthly_income = get_monthly_income_for_current_year()
+    last_year_income = get_income_by_month_last_year()
+    
+    this_week = get_income_this_week()
+    last_week = get_income_last_week()
+    print(last_week)
+    
     context = {
         'usersCount' : users.count(),
         'gamesCount' : games.count(),
         'income' : total_income,
         'purchaseCount' : purchase_history.count(),
         'purchase_history' : purchase_history,
-         
+        "monthly_income" : monthly_income,     
+        'last_year_income' : last_year_income,
+        'this_week' : this_week,
+        'last_week' : last_week,
+        
+        
     }
     
-    print(users.count())
     return render(request , 'adminpanel/adminhome.html' , context )
 
 @never_cache
@@ -124,13 +137,6 @@ def gamesList(request):
         
         featured = True if request.POST.get('featured') else False
 
-        print('-----------------------')
-        print(featured)
-        print(category)
-        print(banner_image)
-        print(cover_image)
-        
-        print('-----------------------')
         
         game = Game(
             name=name,
@@ -212,10 +218,14 @@ def categoriesList(request):
         category = request.POST['category']
         Category.objects.create(name=category)
         return redirect('categorieslist')
-        
-    categories = Category.objects.order_by('name')
+    
+    categories = Category.objects.annotate(game_count=Count('game')).order_by('name')
+    
+    for category in categories:
+        category.bg_color = random_hex(category.id)
+   
     context = {
-        'categories' : categories,   
+        'categories' : categories,         
     }  
     return render(request , 'adminpanel/categorydetails.html' , context )
 
@@ -255,7 +265,7 @@ def deleteCoins(request , coinsId):
 
 
 #-----------------------------------------------#
-# ------------- Coins RELATED ----------------- #
+# ------------- Coupon RELATED ----------------- #
 #-----------------------------------------------#
 
 def couponList(request):
@@ -282,8 +292,10 @@ def couponList(request):
                 active = active
             )
             coupon.save()
+            
     coupons = Coupon.objects.all().order_by('expiration_date' , 'created_at')
     
+ 
     context = {
         'coupons' : coupons,
     }

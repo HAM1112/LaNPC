@@ -1,7 +1,11 @@
 {% extends 'adminpanel/layout.html' %}
 {% block content %}
     
-    
+<div>
+    <canvas id="chartjs-doughnut"></canvas>
+</div>
+
+
 <div class="container mx-auto mt-8 grid grid-cols-4 gap-4">
     <!-- Card 1 -->
     {% for category in categories %}
@@ -27,4 +31,47 @@
         <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">Add</button>    
     </div>
 </form>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+    window.theme = {
+        primary: "#00FFF5",
+        success: "#9400FF",
+        warning: "#A31ACB",
+    };
+    
+
+    new Chart(document.getElementById("chartjs-doughnut"), {
+        type: "doughnut",
+        data: {
+          labels: [
+            {% for category in categories %}
+                "{{ category.name }}"{% if not forloop.last %},{% endif %}
+            {% endfor %}
+          ],
+          datasets: [{
+            data: [
+                {% for category in categories %}
+                    {{ category.game_count }}{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ],
+            backgroundColor: [
+              
+              {% for category in categories %}
+                    "{{category.bg_color}}",
+              {% endfor %}
+            ],
+            borderColor: "transparent"
+          }]
+        },
+        options: {
+          maintainAspectRatio: false,
+          cutoutPercentage: 65,
+        }
+      });
+      
+</script>
+
 {% endblock  %}

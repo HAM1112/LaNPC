@@ -14,6 +14,8 @@ urlpatterns = [
     path('addWishList/<int:gameId>', views.addWishList, name='add-wishlist'),     
     path('delWishList/<int:gameId>', views.delWishList, name='del-wishlist'),     
     path('buyGame/<int:gameId>', views.buyGame, name='buy-game'),     
+    
+    path('download/<int:game_id>/', views.download_game_images, name='download_game'),
        
 
 

@@ -21,6 +21,7 @@ class Game(models.Model):
     cover_image = models.ImageField(upload_to='game_covers/', null=True)
     category = models.ForeignKey('Category', on_delete=models.CASCADE)
     featured = models.BooleanField(default=False )
+    purchases = models.PositiveIntegerField(default=0) 
 
     def __str__(self):
         return self.name

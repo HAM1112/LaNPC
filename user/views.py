@@ -6,7 +6,16 @@ from adminpanel.models import Game , Category , CoinsPack
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 
-from .models import Wishlist , PurchasedGame
+from .models import Wishlist , PurchasedGame , Review
+
+from datetime import datetime
+
+import os
+import io
+import zipfile
+from django.core.files.storage import default_storage
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 
 
 # --------------------------------------------------#
@@ -33,16 +42,58 @@ def home(request):
 # --------------------------------------------------#
 # ------------------Game details--------------------#
 # --------------------------------------------------#
-def gameDetails(request , gameId):    
+def gameDetails(request , gameId):
     game = Game.objects.get(id=gameId)
+    if request.method == "POST":
+        rating  = request.POST.get('rate')
+        description = request.POST.get('description')
+
+        review = Review.objects.create(
+            user = request.user,
+            game = game,
+            rating = rating,
+            description = description
+        )
+        review.save()
+        return redirect('game' , gameId = gameId )
+    
+    count = 0
+    total = 0
+    reviews = Review.objects.filter(game=game)
+    for review in reviews:
+        count += 1
+        total += review.rating
+    
+    if count > 0:
+        rating = total / count
+    else:
+        rating = 4.5
+        
+    reviews_with_description = Review.objects.filter(game=game).exclude(description__isnull=True).exclude(description__exact='')
+    
     related_games = Game.objects.filter(category=game.category).exclude(id=game.id)
     wishlist = Wishlist.objects.filter(user = request.user , game = game).exists()
-    print(wishlist)
-    print("testing the world haters")
+    
+    no_of_downloads_left = 3
+    try:
+        purchased_game = PurchasedGame.objects.get(game=game, user=request.user)
+        purchased = True
+        
+        no_of_downloads_left = 3 - purchased_game.download_count
+    except PurchasedGame.DoesNotExist:
+        purchased = False
+
+    print(no_of_downloads_left)
+    
     context = {
         'game' : game,
         'related' : related_games,
         'wishlist' : wishlist,
+        'purchased' : purchased,
+        'reviews' : reviews,
+        'reviews_discription' : reviews_with_description,
+        'rating' : rating,
+        'no_of_downloads_left':no_of_downloads_left
     }
     return render(request , 'user/gamedetails.html' , context )
 
@@ -127,7 +178,9 @@ def buyGame(request , gameId):
         purchase = PurchasedGame.objects.create(user=user , game=game)
         purchase.save()
         user.coins -= game.coins
-        user.save()
+        user.save()   
+        game.purchases += 1
+        
         return redirect('profile')
     else:
         return redirect('coins')
@@ -158,6 +211,10 @@ def coins(request):
         del request.session['in_id']
     if 'details' in request.session:
         del request.session['details']
+    if 'amount' in request.session:
+        del request.session['amount']
+    if 'coupon_id' in request.session:
+        del request.session['coupon_id']
     coinsPack = CoinsPack.objects.order_by('coins')
     context = {
         'coins' : coinsPack,
@@ -175,6 +232,46 @@ def profile(request):
         'purchased_games' : purchased_games,
     } 
     return render(request , 'user/profile.html' , context)
+
+@csrf_exempt  
+def download_game_images(request, game_id):
+    game = Game.objects.get(pk=game_id)
+    
+    purchase = PurchasedGame.objects.get(game_id = game_id , user = request.user)
+    
+    if purchase.download_count < 3 :
+        temp_dir = os.path.join(settings.MEDIA_ROOT, 'temp')
+        os.makedirs(temp_dir, exist_ok=True)
+
+        
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, 'w') as zipf:
+
+            for image in [game.banner_image, game.cover_image]:
+                if image:
+                    image_path = default_storage.path(image.name)
+                    zipf.write(image_path, os.path.basename(image_path))
+
+        os.rmdir(temp_dir)
+
+       
+        response = HttpResponse(zip_buffer.getvalue(), content_type='application/zip')
+        response['Content-Disposition'] = f'attachment; filename="{game.name}_images.zip"'
+        
+        response.write('<script>window.onload = function() { location.reload(); }</script>')
+        
+        purchase.download_count += 1
+        purchase.save()
+        if purchase.download_count == 3:
+            purchase.delete()
+        return response
+    else:
+        purchase.delete()  
+        return redirect('game' , game_id)
+        
+    
+
+
 
 # user logout 
 def userLogout(request):

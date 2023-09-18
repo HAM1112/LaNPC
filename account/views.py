@@ -10,8 +10,10 @@ from django.contrib.sessions.models import Session
 from paypal.standard.models import ST_PP_COMPLETED
 from paypal.standard.forms import PayPalPaymentsForm
 
+from decimal import Decimal
 import random
 import uuid  # For generating unique identifiers
+from datetime import date , datetime
 
 from django.conf import settings
 from decouple import config
@@ -81,24 +83,43 @@ def signIn(request):
 def payment(request , packId):
     error = None
     coupon_offer = 0
-    
+    pack = CoinsPack.objects.get(id = packId)
+    details = {}
     if request.method == "POST":
         coupon = request.POST.get('coupon')
         try:
             coupon = Coupon.objects.get(code=coupon)
-            
+            if CouponUsage.objects.filter(user=request.user, coupon=coupon).exists():
+                print('coupon already used')
+                error = 'Coupon already used'
+            elif coupon.expiration_date < date.today():
+                print('Coupon Expired')
+                error = 'Coupon Expired'
+            elif coupon.active == False :
+                print('coupon is inactive')
+                error = 'Coupon is Inactive'
+            else:
+                request.session['coupon_id'] = coupon.id
+                coupon_offer = coupon.discount
+                you_save = float(((Decimal(coupon_offer) / Decimal(100)) * Decimal(pack.price_after_offer)))
+                details['you_save'] = you_save
+                details['coupon_offer'] = coupon_offer
+                
+      
         except Coupon.DoesNotExist:
+            error = 'Check you code again'
             print("Coupon does not exist")
-
         
-    pack = CoinsPack.objects.get(id = packId)
+        
     item_name = f"Pack of {pack.coins} coins"
     unique_invoice_id = uuid.uuid4().hex   
     request.session['in_id'] = unique_invoice_id
     request.session['pack_id'] = packId
+    # amount = 0
     
-    amount = pack.price_after_offer - ((coupon_offer/10) * pack.price_after_offer )
+    amount = float(Decimal(pack.price_after_offer) - ((Decimal(coupon_offer) / Decimal(100)) * Decimal(pack.price_after_offer)))
     print(amount)
+    request.session['amount'] = amount
     paypal_dict = {
         "business": settings.PAYPAL_RECEIVER_EMAIL ,
         "amount": amount,
@@ -107,7 +128,6 @@ def payment(request , packId):
         "notify_url": request.build_absolute_uri(reverse('paypal-ipn')),
         "return": request.build_absolute_uri(reverse('payment-completed')),
         "cancel_return": request.build_absolute_uri(reverse('payment-failed')),
-        # "custom": "premium_plan",  # Custom command to correlate to some function later (optional)
     }
     
     form = PayPalPaymentsForm(initial=paypal_dict)
@@ -116,6 +136,7 @@ def payment(request , packId):
         'coinpack' : pack,
         'amount' : amount,
         'error' : error,
+        'details' : details
         }
     return render(request , 'account/payment.html' , context)
 
@@ -124,6 +145,9 @@ def payment_completed_view(request):
     if request.session.get('pack_id') and request.session.get('in_id'):
         packId = request.session.get('pack_id')
         transaction_id = request.session.get('in_id')
+        amount = request.session.get('amount')
+        you_save = 0
+        coupon = None
         
         userId = request.user.id
         
@@ -133,9 +157,24 @@ def payment_completed_view(request):
             coins_pack_id =  packId,
             user = request.user,
             transaction_id = transaction_id,
+            amount = amount,
             status = True
         )
         transaction.save()
+        details = {}
+        if 'coupon_id' in request.session:
+            coupon_Id = request.session.get('coupon_id')
+            couponUse = CouponUsage(
+                user = request.user,
+                coupon_id =  coupon_Id,
+                transaction_id = transaction_id
+            )
+            couponUse.save()
+            
+            coupon = Coupon.objects.get(id = coupon_Id)
+            
+            you_save = float(((Decimal(coupon.discount) / Decimal(100)) * Decimal(pack.price_after_offer)))
+            del request.session['coupon_id']
         
         user = User.objects.get(id = userId)
         user.coins += pack.coins
@@ -145,10 +184,16 @@ def payment_completed_view(request):
             'transaction' : transaction,
             'pack' : pack,
             'user' : request.user,
+            'coupon' : coupon,
+            'amount' : amount,
+            'you_save' : you_save
         }
         del request.session['pack_id']
         del request.session['in_id']
-        
+        del request.session['amount']
+        if 'coupon_id' in request.session:
+            del request.session['coupon_id']
+            
         return render(request , 'account/payment-completed.html' , context)
     else:
         return redirect('coins')
@@ -161,12 +206,14 @@ def payment_failed_view(request):
         
         userId = request.user.id
         pack = CoinsPack.objects.get(id=packId)
+        amount = request.session.get('amount')
         
         transaction = Transaction.objects.create(
             coins_pack_id =  packId,
             user_id = userId,
             transaction_id = transaction_id,
-            status = False
+            status = False,
+            amount = amount,
         )
         transaction.save()
 
@@ -176,7 +223,9 @@ def payment_failed_view(request):
         
         del request.session['pack_id']
         del request.session['in_id']
-        
+        del request.session['amount']
+        if 'coupon_id' in request.session:
+            del request.session['coupon_id']
         
         return render(request , 'account/payment-failed.html' , context)
 

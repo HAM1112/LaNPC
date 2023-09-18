@@ -16,6 +16,18 @@ class PurchasedGame(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     time_added = models.DateTimeField(auto_now_add=True)
+    download_count = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return f"{self.user.username}Purchased Game {self.game.name}"
+
+class Review(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
+    rating = models.PositiveIntegerField()
+    description = models.TextField(null=True)
+    time_created = models.DateTimeField(auto_now_add=True)
+    time_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Review by {self.user.username} for {self.game}"

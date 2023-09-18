@@ -45,7 +45,7 @@
 <h3 class="text-sm font-medium tracking-widest text-gray-900 uppercase lg:text-base my-8">
     Pack Purchase History
 </h3>
-<div class="relative overflow-x-auto">
+<div class="relative overflow-x-auto" id="purchaseDetails">
     <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
@@ -60,6 +60,9 @@
                 </th>
                 <th scope="col" class="px-6 py-3">
                     Transaction Id
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Date Time
                 </th>
                 <th scope="col" class="px-6 py-3">
                     Status
@@ -82,6 +85,9 @@
                         {{transaction.transaction_id}}
                     </td>
                     <td class="px-6 py-4">
+                        {{transaction.timestamp}}
+                    </td>
+                    <td class="px-6 py-4">
                         {% if transaction.status  %} <span class="text-lime-500"> Success </span> {% else %} <span class="text-red-600"> Failed </span> {% endif %}
                     </td>
                 </tr>
@@ -90,5 +96,21 @@
         </tbody>
     </table>
 </div>
+    
+<div class="text-center mt-5 mb-10">
+    <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center" onclick="printDiv('purchaseDetails')">
+        <svg class="fill-current w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z"/></svg>
+        <span>Order</span>
+    </button>
+</div>
+<script>
+    function printDiv(divId) {
+        var printContents = document.getElementById(divId).innerHTML;
+        var originalContents = document.body.innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+    }
+</script>
 
 {% endblock  %}

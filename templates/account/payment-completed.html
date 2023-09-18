@@ -142,20 +142,7 @@
         text-decoration: underline;
     }
     
-    .btn-primary {
-        text-decoration: none;
-        color: #FFF;
-        background-color: #1ab394;
-        border: solid #1ab394;
-        border-width: 5px 10px;
-        line-height: 2;
-        font-weight: bold;
-        text-align: center;
-        cursor: pointer;
-        display: inline-block;
-        border-radius: 5px;
-        text-transform: capitalize;
-    }
+
     
     /* -------------------------------------
         OTHER STYLES THAT MIGHT BE USEFUL
@@ -274,53 +261,46 @@
   </style>
 </head>
 <body>
-    {% comment %} <div class="card custom-card text-white">
-        <div class="card-body p-5">
-            <h3 class="card-title mb-5 bg-success">Package Successful</h3>
-            <p class="card-text">You purchased {{pack.coins}} Coins for ₹ {{pack.price_after_offer}}</p>
-            <p class="card-text">Username : {{user.username}}</p>
-            <h4 class="card-text my-4">Transaction Id : {{transactionId}}  </h4>
-            <div class="text-center">
-                <a href="{% url 'coins' %}">
-                    <button class="btn btn-secondary">
-                        Ok
-                    </button>
-                </a>
-            </div>
-        </div>
-    </div> {% endcomment %}
     <table class="body-wrap">
         <tbody><tr>
             <td></td>
             <td class="container" width="600">
                 <div class="content">
-                    <table class="main" width="100%" cellpadding="0" cellspacing="0">
+                    <table class="main" width="100%" cellpadding="0" cellspacing="0" id="invoice">
                         <tbody><tr>
                             <td class="content-wrap aligncenter">
                                 <table width="100%" cellpadding="0" cellspacing="0">
                                     <tbody><tr>
                                         <td class="content-block">
-                                            <h2>Your package was Successful</h2>
+                                            <h2>Your Transaction was Successful</h2>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="content-block">
                                             <table class="invoice">
                                                 <tbody><tr>
-                                                    <td>{{user.username}}<br>{{transactionId}}<br>{{transaction.timestamp}}</td>
+                                                    <td>{{user.username}} <br>{{transaction.transaction_id}}<br>{{transaction.timestamp}}</td>
                                                 </tr>
                                                 <tr>
                                                     <td>
                                                         <table class="invoice-items" cellpadding="0" cellspacing="0">
                                                             <tbody>
                                                                 <tr>
-                                                                    <td>Service 1</td>
+                                                                    <td>Coin pack of {{pack.coins}}</td>
                                                                     <td class="alignright">$ {{pack.price_after_offer}}</td>
                                                                 </tr>
+                                                                <!-- if coupon id -->
+                                                                {% if coupon %}
+                                                                    <tr>
+                                                                        <td>Coupon code = {{coupon.code}}<br>Coupon - {{coupon.discount}}% discount </td>
+                                                                        <td class="alignright" style="vertical-align: bottom;">- $ {{you_save}}</td>
+                                                                    </tr>
+                                                                {% endif %}
+                                                                <!-- end coupon id -->
                                                                 
                                                                 <tr class="total">
                                                                     <td class="alignright" width="80%">Total</td>
-                                                                    <td class="alignright">$ {{pack.price_after_offer}}</td>
+                                                                    <td class="alignright">$ {{amount}}</td>
                                                                 </tr>
                                                         </tbody></table>
                                                     </td>
@@ -328,24 +308,22 @@
                                             </tbody></table>
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <td class="content-block">
-                                            <a href="javascript:window.print()" class="btn btn-success me-1"><i class="fa fa-print"></i></a>
-                                        </td>
-                                    </tr>
-                                    {% comment %} <tr>
-                                        <td class="content-block">
-                                            Company Inc. 123 Van Ness, San Francisco 94102
-                                        </td>
-                                    </tr> {% endcomment %}
+                                    
                                 </tbody></table>
                             </td>
                         </tr>
                     </tbody></table>
                     <div class="footer">
                         <table width="100%">
-                            <tbody><tr>
+                            <tbody>
+                            <tr>
                                 <td class="aligncenter content-block">Questions? Email <a href="mailto:">support@company.inc</a></td>
+                            </tr>
+                            <tr>
+                                <td class="content-block">
+                                    <button onclick="printDiv('invoice')" class="btn btn-success me-1"><i class="fa fa-print"></i></button>
+                                    <a href="{% url 'coins' %}" class="btn btn-dark">OK</a>
+                                </td>
                             </tr>
                         </tbody></table>
                     </div></div>
@@ -353,5 +331,16 @@
             <td></td>
         </tr>
     </tbody></table>
+
+    <script>
+        function printDiv(divId) {
+            var printContents = document.getElementById(divId).innerHTML;
+            var originalContents = document.body.innerHTML;
+            document.body.innerHTML = printContents;
+            window.print();
+            document.body.innerHTML = originalContents;
+        }
+    </script>
+
 </body>
 </html>

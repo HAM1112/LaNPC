@@ -34,6 +34,7 @@
       <div class="col-lg-12">
         <div class="content">
           <div class="row">
+
             <div class="col-lg-6">
               <div class="left-info">
                 <div class="left">
@@ -49,9 +50,9 @@
             <div class="col-lg-6">
               <div class="right-info">
                 <ul>
-                  <li><i class="fa-solid fa-coins"></i> 4.8</li>
-                  <li><i class="fa fa-download"></i> {{game.coins}}</li>
-                  <li><i class="fa fa-star"></i> 100</li>
+                  <li><i class="fa-solid fa-coins"></i> {{game.coins}}</li>
+                  <li><i class="fa fa-download"></i> 5</li>
+                  <li><i class="fa fa-star"></i> {{rating}}</li>
                   <li><i class="fa fa-gamepad"></i> {{game.category}}</li>
                 </ul>
               </div>
@@ -71,18 +72,28 @@
             <div class="col-lg-12">
               {% if user.is_authenticated %}
                 <div class="main-border-button">
-                  {% if wishlist %}
-                    <a href="{% url 'buy-game' game.id %}">Buy {{game.name}} Now!!</a>
-                  {% else %}
-                    <a href="{% url 'buy-game' game.id %}">Download</a>
+                  {% if purchased %}
+
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#downloadgame">
+                      Download ({{no_of_downloads_left}} / 3)
+                    </button>
+                    
+                    <div class="buttons-btn d-flex justify-content-around w-100">
+                      <button class="review-btn rounded-pill" data-bs-toggle="modal" data-bs-target="#reviewModal">Add Review</button>
+                      <button class="community-btn ro `unded-pill">Go to Community</button>
+                    </div>
+                    {% else %}
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#buygame">
+                      Buy {{game.name}} Now!!
+                    </button>
+                    <a href="#" style="border: 2px solid yellow; color: yellow;">Add to Cart</a>
+                    {% if wishlist %}
+                      <a href="{% url 'del-wishlist' game.id %}" style="border: none ;color: white; background-color: red;">Remove from WishList</a>
+                    {% else %}
+                      <a href="{% url 'add-wishlist' game.id %}" style="border: 2px solid blue; color: blue;">Add to WishList</a>
+                    {% endif %}
                   {% endif %}
                   
-                  <a href="#" style="border: 2px solid yellow; color: yellow;">Add to Cart</a>
-                  {% if wishlist %}
-                    <a href="{% url 'del-wishlist' game.id %}" style="border: none ;color: white; background-color: red;">Remove from WishList</a>
-                  {% else %}
-                    <a href="{% url 'add-wishlist' game.id %}" style="border: 2px solid blue; color: blue;">Add to WishList</a>
-                  {% endif %}
                 </div>
               {% else %}
                 <div class="main-border-button">
@@ -90,6 +101,65 @@
                 </div>
               {% endif %}
             </div>
+
+
+            <div class="col-lg-12 py-5">
+              <h3 class="text-center my-3">Reviews</h3>
+
+              <div class="user-panel w-100">
+                <div class="user-info">
+                  {% if user.profile_pic %}
+                  <img src="/static/uploads/{{user.profile_pic}}" alt="User Avatar" class="user-avatar">
+                  {% else %}
+                  <img src="/static/images/profile-pic.webp" alt="User Avatar" class="user-avatar">
+                  {% endif %}
+                    <h6 class="user-name">John Doe</h6>
+                </div>
+                <div class="user-rating">
+                    <span class="rating-star">&#9733;</span>
+                    <span class="rating-star">&#9733;</span>
+                    <span class="rating-star">&#9733;</span>
+                    <span class="rating-star">&#9733;</span>
+                    <span class="rating-star">&#9734;</span> <!-- A partially filled star for example -->
+                </div>
+                <p class="user-description">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla venenatis odio id mi laoreet, eu bibendum orci tristique. Sed viverra turpis vel felis ultrices, ac blandit purus volutpat.
+                    dsfadfasfassadfasdfadsfasdfasdfasdfasdfasfddsfasdsaaaaaaaaaaaaaaaaaaa
+                </p>
+                <div class="time">
+                  <span>8 Sept 2023</span>
+                </div>
+              </div>
+              {% for review in reviews_discription %}
+              <div class="user-panel w-100">
+                <div class="user-info">
+                  {% if review.user.profile_pic %}
+                  <img src="/static/uploads/{{review.user.profile_pic}}" alt="User Avatar" class="user-avatar">
+                  {% else %}
+                  <img src="/static/images/profile-pic.webp" alt="User Avatar" class="user-avatar">
+                  {% endif %}
+                  <h6 class="user-name">{{review.user.username}}</h6>
+                    </div>
+                    <div class="user-rating">
+                      <span class="rating-star">&#9733;</span>
+                      <span class="rating-star">&#9733;</span>
+                      <span class="rating-star">&#9733;</span>
+                      <span class="rating-star">&#9733;</span>
+                      <span class="rating-star">&#9734;</span>
+                    </div>
+                    <p class="user-description">
+                      {{review.description}}
+                    </p>
+                    <div class="time">
+                      <span>{{review.time_updated}}</span>
+                    </div>
+                  </div>
+              {% endfor %}
+
+
+            </div>
+            
+
           </div>
         </div>
       </div>
@@ -131,6 +201,179 @@
     </div>
   </div>
   <!-- ***** Other End ***** -->
+  
 
+
+
+
+
+
+
+
+  <style>
+    .rate {
+      float: left;
+      height: 46px;
+      padding: 0 10px;
+    }
+    .rate:not(:checked) > input {
+        position:absolute;
+        top:-9999px;
+    }
+    .rate:not(:checked) > label {
+        float:right;
+        width:1em;
+        overflow:hidden;
+        white-space:nowrap;
+        cursor:pointer;
+        font-size:30px;
+        color:#ccc;
+    }
+    .rate:not(:checked) > label:before {
+        content: '★ ';
+    }
+    .rate > input:checked ~ label {
+        color: #ffc700;    
+    }
+    .rate:not(:checked) > label:hover,
+    .rate:not(:checked) > label:hover ~ label {
+        color: #deb217;  
+    }
+    .rate > input:checked + label:hover,
+    .rate > input:checked + label:hover ~ label,
+    .rate > input:checked ~ label:hover,
+    .rate > input:checked ~ label:hover ~ label,
+    .rate > label:hover ~ input:checked ~ label {
+        color: #c59b08;
+    }
+  </style>
+  <!-- ***** extra  ***** -->
+  <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="ratingModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ratingModalLabel">Rate This Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST">
+                  {% csrf_token %}
+                    <div class="mb-3 rate">
+                        <div class="rate">
+                          <input type="radio" id="star5" name="rate" value="5" checked />
+                          <label for="star5" title="text">5 stars</label>
+                          <input type="radio" id="star4" name="rate" value="4" />
+                          <label for="star4" title="text">4 stars</label>
+                          <input type="radio" id="star3" name="rate" value="3" />
+                          <label for="star3" title="text">3 stars</label>
+                          <input type="radio" id="star2" name="rate" value="2" />
+                          <label for="star2" title="text">2 stars</label>
+                          <input type="radio" id="star1" name="rate" value="1" />
+                          <label for="star1" title="text">1 star</label>
+                        </div>
+                        <!-- Add more radio buttons for additional ratings -->
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description:</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+      </div>
+    </div>
+    <!-- ***** extra end ***** -->
+    
+    
+    
+    {% if purchased %}
+    <!-- ***** download GAme modal ***** -->
+    <div class="modal fade" id="downloadgame" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content bg-dark text-white">
+          <!-- Add your modal content here -->
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Download confirmation</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Do you want to download {{game.name}} ? You have {{no_of_downloads_left}} downloads left.
+          </div>
+          {% if no_of_downloads_left == 3 %}
+          <div class="modal-body text-danger">
+            This is your last Download
+          </div>
+          {% endif %}
+          <div class="modal-body">
+            Are you Sure?
+          </div>
+          
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="refreshPage()" >Close</button>
+            <button type="button" class="btn btn-primary" id="download-link">
+              <a href="{% url 'download_game' game.id %}" >Download</a>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    
+    <!-- ***** buygame GAme modal ***** -->
+    <div class="modal fade" id="buygame" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content bg-dark text-white">
+          <!-- Add your modal content here -->
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Game Purchasing confirmation</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Purachse {{game.name}} for {{game.coins}} coins
+          </div>
+          <div class="modal-body">
+            After purchasing this game you can download it 3 times only  
+          </div>
+          <div class="modal-body">
+            Are you Sure?
+          </div>
+          
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary">
+              <a href="{% url 'buy-game' game.id %}">Purachse</a>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    
+    <script>
+      function reloadPage() {
+          // Reload the current page
+          console.log("button clicked")
+          location.reload();
+      }
+  </script>
+  
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+  $(document).ready(function() {
+    $('#download-link').click(function() {
+      // Reload the page after 3 seconds (adjust the delay as needed)
+      setTimeout(function() {
+        location.reload();
+      }, 500);
+    });
+  });
+  </script>
+  
+    
+    
 {% endblock  %}
 

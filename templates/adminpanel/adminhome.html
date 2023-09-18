@@ -31,6 +31,40 @@
 </div>
 </div>
 
+<!-- Chart start -->
+
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <!-- Card 1 (Wider) -->
+    <div class="col-span-2 bg-gray-500 rounded-lg shadow-lg p-4">
+      <!-- Content for Card 1 -->
+      <h2 class="text-xl text-black text-center font-semibold my-5">Monthly Income</h2>
+      
+      <div>
+          <canvas id="chartjs-bar"></canvas>
+      </div>
+    </div>
+  
+    <!-- Card 2 (Less Wider) -->
+    <div class="col-span-1 bg-gray-500 rounded-lg shadow-lg p-4 ">
+      <!-- Content for Card 2 -->
+      <h2 class="text-xl text-black text-center font-semibold my-5">Weekly Income</h2>
+
+      <div >
+          <canvas id="chartjs-line" height="300"></canvas>
+      </div>
+    </div>
+  </div>
+  
+
+
+
+
+
+
+
+
+
+<!-- Chart end -->
 
 <!-- Latest Review History -->
 
@@ -81,7 +115,7 @@
 </div>
 
 
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <!-- Latest purchase History -->
 
 
@@ -151,104 +185,7 @@
                     15-4-2023 | 04:43
                 </td>
             </tr>
-            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    Hogwarts Legacy
-                </th>
-                <td class="px-6 py-4">
-                    AnotherUser
-                </td>
-                <td class="px-6 py-4">
-                    3 Coins
-                </td>
-                <td class="px-6 py-4">
-                    15-4-2023 | 04:43
-                </td>
-            </tr>
-            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    Hogwarts Legacy
-                </th>
-                <td class="px-6 py-4">
-                    AnotherUser
-                </td>
-                <td class="px-6 py-4">
-                    3 Coins
-                </td>
-                <td class="px-6 py-4">
-                    15-4-2023 | 04:43
-                </td>
-            </tr>
-            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    Hogwarts Legacy
-                </th>
-                <td class="px-6 py-4">
-                    AnotherUser
-                </td>
-                <td class="px-6 py-4">
-                    3 Coins
-                </td>
-                <td class="px-6 py-4">
-                    15-4-2023 | 04:43
-                </td>
-            </tr>
-            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    Hogwarts Legacy
-                </th>
-                <td class="px-6 py-4">
-                    AnotherUser
-                </td>
-                <td class="px-6 py-4">
-                    3 Coins
-                </td>
-                <td class="px-6 py-4">
-                    15-4-2023 | 04:43
-                </td>
-            </tr>
-            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    Hogwarts Legacy
-                </th>
-                <td class="px-6 py-4">
-                    AnotherUser
-                </td>
-                <td class="px-6 py-4">
-                    3 Coins
-                </td>
-                <td class="px-6 py-4">
-                    15-4-2023 | 04:43
-                </td>
-            </tr>
-            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    Hogwarts Legacy
-                </th>
-                <td class="px-6 py-4">
-                    AnotherUser
-                </td>
-                <td class="px-6 py-4">
-                    3 Coins
-                </td>
-                <td class="px-6 py-4">
-                    15-4-2023 | 04:43
-                </td>
-            </tr>
-            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    Hogwarts Legacy
-                </th>
-                <td class="px-6 py-4">
-                    AnotherUser
-                </td>
-                <td class="px-6 py-4">
-                    3 Coins
-                </td>
-                <td class="px-6 py-4">
-                    15-4-2023 | 04:43
-                </td>
-            </tr>
+            
             <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                     Hogwarts Legacy
@@ -270,6 +207,161 @@
     </table>
 </div>
 
+
+
+   
+    <script>
+        function printDiv(divId) {
+            var printContents = document.getElementById(divId).innerHTML;
+            var originalContents = document.body.innerHTML;
+            document.body.innerHTML = printContents;
+            window.print();
+            document.body.innerHTML = originalContents;
+        }
+    </script>
+
+
+
+    
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const ctx = document.getElementById('chartjs-bar');
+
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: ["Jan" , "Feb" , "Mar" , "Apr" , "May" , "Jun" , "Jul" , "Aug" , "Sep" , "Oct" , "Nov" , "Dec" ],
+            datasets: [
+            {
+                label: "Last Year",
+                backgroundColor: "#ff5733", // Replace with your desired color
+                borderColor: "#ff5733", // Replace with your desired color
+                hoverBackgroundColor: "#ff5733", // Replace with your desired color
+                hoverBorderColor: "#ff5733", // Replace with your desired color
+                data: [
+                    {% for month , income in last_year_income.items %}
+                        {{income}},
+                    {% endfor %}
+                 ],
+                barPercentage: .75,
+                categoryPercentage: .5
+            }, 
+            {
+                label: "This Year",
+                backgroundColor: "#dee2e6",
+                borderColor: "#dee2e6",
+                hoverBackgroundColor: "#dee2e6",
+                hoverBorderColor: "#dee2e6",
+                data: [
+                    {% for month, income in monthly_income.items %}
+                        {{ income }},
+                        
+                    {% endfor %}
+                ],
+                barPercentage: .75,
+                categoryPercentage: .5
+            }
+            ]
+        },
+        options: {
+           
+            scales: {
+                y: {
+                    beginAtZero: true, // Start the y-axis at zero
+                    
+                    ticks: {
+                        color: "black",
+                     }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: "black",
+                     }
+                }
+            },
+            plugins: {
+                legend: {
+                    title: {
+                        color: "red", // Change the legend title color to red
+                    },
+                    labels:{
+                        color : "black"
+                    }
+                },
+            },
+        }
+    });
+// chart for week
+    new Chart(document.getElementById("chartjs-line"), {
+        type: "line",
+        data: {
+          labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun",],
+          datasets: [{
+            label: "This Week",
+            fill: true,
+            backgroundColor: "transparent",
+            borderColor: '#00ADB5',
+            data: [
+                {% for day, income in this_week.items %}
+                    {{ income }},
+                {% endfor %}
+            ]
+          }, {
+            label: "Last Week",
+            fill: true,
+            backgroundColor: "transparent",
+            borderColor: "#adb5bd",
+            borderDash: [4, 4],
+            data: [
+                {% for day , income in last_week.items %}
+                    {{income}},
+                {% endfor %}
+            ]
+          }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true, // Start the y-axis at zero
+                    
+                    ticks: {
+                        color: "black",
+                     }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: "black",
+                     }
+                }
+            },
+            plugins: {
+                legend: {
+                    title: {
+                        color: "red", // Change the legend title color to red
+                    },
+                    labels:{
+                        color : "black"
+                    }
+                },
+            },
+        }
+      });
+      
+
+</script>
+
+  
+   
+  
+   
 
 
 
