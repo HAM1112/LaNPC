@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 
 from .models import Wishlist , PurchasedGame , Review
+from account.models import Transaction , User
 
 from datetime import datetime
 
@@ -44,6 +45,7 @@ def home(request):
 # --------------------------------------------------#
 def gameDetails(request , gameId):
     game = Game.objects.get(id=gameId)
+    print(gameId)
     if request.method == "POST":
         rating  = request.POST.get('rate')
         description = request.POST.get('description')
@@ -157,13 +159,29 @@ def browse(request):
     games = Game.objects.all()
     categories = Category.objects.all()
     
-    top_coins = Game.objects.order_by('coins')[:3]
+    top_coins = Game.objects.order_by('-coins')[:3]
     other_games = Game.objects.all()[:6]
+  
+    if request.user :
+        try:
+            user_games = PurchasedGame.objects.filter(user=request.user)
+            for purchased_game in user_games:
+                date_added = purchased_game.time_added.date()
+                print(date_added)
+            print(user_games)
+        except Exception as e:
+            print("user is not signed in !!!!!!Please in sign in")
+            user_games = None  # Assign a default value or handle the error as needed
+
+    else :
+        user_games = None
+          
     context = {
         'games' : games,
         'categories' : categories,
         'top_coins' : top_coins,
         'other_games' : other_games,   
+        'user_games' : user_games,
     }   
     return render(request , 'user/browse.html' , context )
 
@@ -180,6 +198,17 @@ def buyGame(request , gameId):
         user.coins -= game.coins
         user.save()   
         game.purchases += 1
+        game.save()
+        
+        try:
+            # Try to get the Wishlist object if it exists
+            wishlist_entry = Wishlist.objects.get(user=user, game=game)
+            
+            # If it exists, delete it
+            wishlist_entry.delete()
+        except ObjectDoesNotExist:
+            # Handle the case where the Wishlist entry doesn't exist
+            pass
         
         return redirect('profile')
     else:
@@ -195,13 +224,14 @@ def addWishList(request , gameId):
 # deleting game from wishlist
 def delWishList(request, gameId):
     try:
+        print("i am tryingg ")
         user = request.user
         wishlist = Wishlist.objects.get(user=user, game_id=gameId)
         wishlist.delete()
         return redirect('profile')
     except ObjectDoesNotExist:
         print(ObjectDoesNotExist)
-        redirect('profile')
+        return redirect('profile')
 
 # display coins packages
 def coins(request):
@@ -223,13 +253,34 @@ def coins(request):
 
 # display profile page
 def profile(request):
+    if request.method == "POST":
+        username = request.POST.get('username')
+        first_name = request.POST.get('firstname')
+        second_name = request.POST.get('secondname')
+        dob_str = request.POST.get('dob')
+        dob_date = datetime.strptime(dob_str, '%Y-%m-%d').date()
+   
+        user = request.user
+        user.username = username
+        user.first_name = first_name
+        user.last_name = second_name
+        user.date_of_birth = dob_date
+        user.save()
+        
+        return redirect('profile')
+    
     user = request.user
     wishlists = Wishlist.objects.filter(user = user)
     purchased_games = PurchasedGame.objects.filter(user = user)
-    print(wishlists)
+    
+    transactions = Transaction.objects.filter(user=request.user)
+    
     context = {
         'wishlists' : wishlists,
         'purchased_games' : purchased_games,
+        'wishlist_count' : wishlists.count(),
+        'purchase_count' : purchased_games.count(),
+        'transactions' : transactions,
     } 
     return render(request , 'user/profile.html' , context)
 
@@ -270,6 +321,16 @@ def download_game_images(request, game_id):
         return redirect('game' , game_id)
         
     
+
+def chatRooms(request):
+    
+    purchased_games = PurchasedGame.objects.filter(user = request.user)
+    
+    context = {
+        'games' : purchased_games,
+        
+    }
+    return render(request , 'user/chatrooms.html', context)
 
 
 

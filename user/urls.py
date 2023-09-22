@@ -17,6 +17,7 @@ urlpatterns = [
     
     path('download/<int:game_id>/', views.download_game_images, name='download_game'),
        
+    path('chatroom/', views.chatRooms, name='chat-rooms'),
 
 
 ]

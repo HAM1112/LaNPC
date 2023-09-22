@@ -1,0 +1,118 @@
+{% extends 'user/base.html' %}
+
+{% block title %} Chat Rooms  {% endblock  %}
+
+{% load static %}
+{% block content %}
+<div class="chatroom profile-library">
+    <div class="col-lg-12 px-4 ">
+        <div class="row mb-4">
+            <h2 class="text-center">Chat Rooms</h2>
+        </div>
+        <div class=" row ">
+            
+            
+            
+            <div class="rooms-list col-lg-4 p-2 rounded-start">
+            <!-- Content for the first div (2/5 of the row) -->
+                <div class="chat-panel w-100">
+                    
+                    <div class="search-bar p-3 rounded">
+                     
+                        <i class="ms-1 p-2 border border-secondary border-2 rounded-start fa fa-search"></i>
+                        <input type="text" class="rounded-end" id="darkInput" placeholder="Enter text">
+                          
+                    </div>
+
+                    <div class="item p-2 rounded-3">
+                        <img src="/static/images/banner.jpg" alt="">
+                        <span>Game Name</span>
+                    </div>
+                    
+                    <div class="item p-2 rounded-3">
+                        <img src="/static/images/banner.jpg" alt="">
+                        <span>Game Name</span>
+                    </div>
+                    <div class="item p-2 rounded-3">
+                        <img src="/static/images/banner.jpg" alt="">
+                        <span>Game Name</span>
+                    </div>
+                    <div class="item p-2 rounded-3">
+                        <img src="/static/images/banner.jpg" alt="">
+                        <span>Game Name</span>
+                    </div>
+
+                    
+                </div>
+            </div>
+            
+            <div class="chat-field col-lg-8 p-2 rounded-end" >
+            <!-- Content for the second div (3/5 of the row) -->
+                <div class="chat-feild-inner rounded p-3">
+
+                    <!-- one chaat -->
+                    <div class="chat  mt-2" >
+                        <img class="mt-2 rounded-circle" src="/static/images/profile-pic.webp" alt="">
+                        <div class="chat-contents">
+                            <div class="chat-user rounded-top ps-2 pe-4 w-100">
+                                <span>user1</span>
+                            </div>
+                            <div class="chat-text px-2 rounded-bottom w-100">
+                                Hi   
+                            </div>                      
+                        </div>
+                    </div>
+                    <!-- one chaat -->
+                    <div class="chat-you  mt-2" >
+                        <img class="mt-2 rounded-circle" src="/static/images/profile-pic.webp" alt="">
+                        <div class="chat-contents">
+                            <div class="chat-user rounded-top ps-2 pe-4 w-100">
+                                <span>user1</span>
+                            </div>
+                            <div class="chat-text px-2 rounded-bottom w-100">
+                                Hi   <br>
+                                Hi   <br>
+                                Hi   <br>
+                                Hi   <br>
+                                Hi   <br>
+                                Hi   <br>
+                                Hi   <br>
+                                Hi   <br>
+                                Hi   <br>
+                                Hi   <br>
+                                Hi   <br>
+                                Hi   <br>
+                                Hi   <br>
+                                Hi   <br>
+                                Hi   <br>
+                                Hi   <br>
+                                Hi   <br>
+                                Hi   <br>
+                                Hi   <br>
+                                Hi   <br>
+                                Hi   <br>
+                                Hi   <br>
+                                Hi   <br>
+                                Hi   <br>
+                            </div>                      
+                        </div>
+                    </div>
+                    <div class="chat-input p-2 mt-2">
+                        <i class=" p-2 fa-regular fa-paper-plane"></i>
+                        <input type="text" class="rounded-end" id="darkInput" placeholder="Enter text">
+                    </div>
+                       
+                </div>
+                
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock  %}
+
+
+
