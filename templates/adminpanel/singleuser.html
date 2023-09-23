@@ -6,11 +6,11 @@
       <div class="grid grid-cols-1 md:grid-cols-3">
         <div class="grid grid-cols-3 text-center order-last md:order-first mt-20 md:mt-0">
           <div>
-            <p class="font-bold text-gray-700 text-xl">2</p>
+            <p class="font-bold text-gray-700 text-xl">{{no_purchases}}</p>
             <p class="text-gray-400">Games</p>
           </div>
           <div>
-               <p class="font-bold text-gray-700 text-xl">1</p>
+               <p class="font-bold text-gray-700 text-xl">{{no_reviews}}</p>
             <p class="text-gray-400">Reviews</p>
           </div>
               <div>
@@ -71,76 +71,51 @@
       <div class="mt-12 flex flex-col justify-center">
         
           <!--Lastest review by this user-->
-        <div class="relative overflow-x-auto">
-
-
-            <h3 class="text-sm font-medium tracking-widest text-black uppercase lg:text-base my-8">
-                Latest Reviews
-            </h3>
-            
-            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                    <tr>
-                        <th scope="col" class="px-6 py-3">
-                            Product name
-                        </th>
-                        <th scope="col" class="px-6 py-3">
-                            Color
-                        </th>
-                        <th scope="col" class="px-6 py-3">
-                            Category
-                        </th>
-                        <th scope="col" class="px-6 py-3">
-                            Price
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            Apple MacBook Pro 17"
-                        </th>
-                        <td class="px-6 py-4">
-                            Silver
-                        </td>
-                        <td class="px-6 py-4">
-                            Laptop
-                        </td>
-                        <td class="px-6 py-4">
-                            $2999
-                        </td>
-                    </tr>
-                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            Microsoft Surface Pro
-                        </th>
-                        <td class="px-6 py-4">
-                            White
-                        </td>
-                        <td class="px-6 py-4">
-                            Laptop PC
-                        </td>
-                        <td class="px-6 py-4">
-                            $1999
-                        </td>
-                    </tr>
-                    <tr class="bg-white dark:bg-gray-800">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            Magic Mouse 2
-                        </th>
-                        <td class="px-6 py-4">
-                            Black
-                        </td>
-                        <td class="px-6 py-4">
-                            Accessories
-                        </td>
-                        <td class="px-6 py-4">
-                            $99
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+          
+          
+          <div class="relative overflow-x-auto">
+              <h3 class="text-sm font-medium tracking-widest text-black uppercase lg:text-base my-8">
+                 Reviews
+              </h3>
+              <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                  <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                      <tr>
+                          <th scope="col" class="px-6 py-3">
+                              Game name
+                          </th>
+                          <th scope="col" class="px-6 py-3">
+                              Rating
+                          </th>
+                          <th scope="col" class="px-6 py-3">
+                              Date 
+                          </th>
+                          <th scope="col" class="px-6 py-3">
+                              Time
+                          </th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      {% for review in reviews %}
+                      <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                          <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                              <a href="{% url 'game-details' review.game.id %}" class="text-teal-600">{{review.game.name}}</a> 
+                          </th>
+                          <td class="px-6 py-4">
+                              {{review.rating}}
+                          </td>
+                          <td class="px-6 py-4">
+                              {{review.time_created|date:"Y-m-d"}}
+                          </td>
+                          <td class="px-6 py-4">
+                              {{ review.time_created|date:"H:i:s" }}
+                          </td>
+                          
+                      </tr>
+                      {% endfor %}
+                      
+                  </tbody>
+              </table>
+          </div>
         
         
         
@@ -150,69 +125,44 @@
 
 
             <h3 class="text-sm font-medium tracking-widest text-black uppercase lg:text-base my-8">
-                Latest Reviews
+                Purchases
             </h3>
             
             <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
                         <th scope="col" class="px-6 py-3">
-                            Product name
+                            Game
                         </th>
                         <th scope="col" class="px-6 py-3">
-                            Color
+                            Coins
                         </th>
                         <th scope="col" class="px-6 py-3">
-                            Category
+                            Download left
                         </th>
                         <th scope="col" class="px-6 py-3">
-                            Price
+                            Date
                         </th>
                     </tr>
                 </thead>
                 <tbody>
+                    {% for purchase in purchases %}
                     <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            Apple MacBook Pro 17"
+                            <a href="{% url 'game-details' purchase.game.id %}" class="text-teal-600">{{purchase.game}}</a> 
                         </th>
                         <td class="px-6 py-4">
-                            Silver
+                            {{purchase.game.coins}}
                         </td>
                         <td class="px-6 py-4">
-                            Laptop
+                            {{purchase.download_count}}
                         </td>
                         <td class="px-6 py-4">
-                            $2999
+                            {{purchase.time_added|date:"Y-m-d"}}
                         </td>
                     </tr>
-                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            Microsoft Surface Pro
-                        </th>
-                        <td class="px-6 py-4">
-                            White
-                        </td>
-                        <td class="px-6 py-4">
-                            Laptop PC
-                        </td>
-                        <td class="px-6 py-4">
-                            $1999
-                        </td>
-                    </tr>
-                    <tr class="bg-white dark:bg-gray-800">
-                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            Magic Mouse 2
-                        </th>
-                        <td class="px-6 py-4">
-                            Black
-                        </td>
-                        <td class="px-6 py-4">
-                            Accessories
-                        </td>
-                        <td class="px-6 py-4">
-                            $99
-                        </td>
-                    </tr>
+                    {% endfor %}
+                    
                 </tbody>
             </table>
         </div>
