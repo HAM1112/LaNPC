@@ -48,6 +48,9 @@
               Transaction Id
             </th>
             <th scope="col" class="px-6 py-3">
+              Download left
+            </th>
+            <th scope="col" class="px-6 py-3">
               Date and Time
             </th>
           </tr>
@@ -65,7 +68,10 @@
               {{purchase.id}}
             </td>
             <td class="px-6 py-4">
-              {{purchase.time_added}}
+              {{ purchase.download_left}}
+            </td>
+            <td class="px-6 py-4">
+              {{purchase.time_added|date:"Y-m-d"}}
             </td>
           </tr>
           {% endfor %}
