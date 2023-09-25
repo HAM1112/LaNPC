@@ -135,73 +135,37 @@
                     User name
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Price
+                    Rating
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    Date Time
+                    Date 
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Time
                 </th>
             </tr>
         </thead>
         <tbody>
+            {% for review in latest_reviews %}
             <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    Hogwarts Legacy
+                    <a href="{% url 'game-details' review.game.id %}" class="text-teal-600">{{review.game.name}}</a> 
                 </th>
-                <td class="px-6 py-4">
-                    AnotherUser
+                <td class="px-6 py-4 text-fuchsia-500">
+                    <a href="{% url 'user-details' review.user.id %}">{{review.user.username}}</a>
                 </td>
                 <td class="px-6 py-4">
-                    3 Coins
+                    {{review.rating}}
                 </td>
                 <td class="px-6 py-4">
-                    15-4-2023 | 04:43
+                    {{review.time_created|date:"Y-m-d"}}
                 </td>
+                <td class="px-6 py-4">
+                    {{ review.time_created|date:"H:i:s" }}
+                </td>
+                
             </tr>
-            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    Hogwarts Legacy
-                </th>
-                <td class="px-6 py-4">
-                    AnotherUser
-                </td>
-                <td class="px-6 py-4">
-                    3 Coins
-                </td>
-                <td class="px-6 py-4">
-                    15-4-2023 | 04:43
-                </td>
-            </tr>
-            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    Hogwarts Legacy
-                </th>
-                <td class="px-6 py-4">
-                    AnotherUser
-                </td>
-                <td class="px-6 py-4">
-                    3 Coins
-                </td>
-                <td class="px-6 py-4">
-                    15-4-2023 | 04:43
-                </td>
-            </tr>
-            
-            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    Hogwarts Legacy
-                </th>
-                <td class="px-6 py-4">
-                    AnotherUser
-                </td>
-                <td class="px-6 py-4">
-                    3 Coins
-                </td>
-                <td class="px-6 py-4">
-                    15-4-2023 | 04:43
-                </td>
-            </tr>
-            
-            
+            {% endfor %}
             
         </tbody>
     </table>
