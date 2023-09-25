@@ -185,6 +185,7 @@ def browse(request):
     }   
     return render(request , 'user/browse.html' , context )
 
+@login_required
 def buyGame(request , gameId):
     
     game = Game.objects.get(id=gameId)
