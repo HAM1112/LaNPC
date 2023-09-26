@@ -1,14 +1,15 @@
 from django.shortcuts import render
-
+from django.core import serializers
 from django.shortcuts import render , redirect
 from django.http import HttpResponse , JsonResponse
 from django.views.decorators.cache import never_cache
+from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import authenticate
 from django.contrib import auth
 from django.db.models.functions import ExtractMonth, ExtractYear
 from django.db.models import Count , Sum
 from account.models import User , Transaction
-from user.models import Wishlist , PurchasedGame
+from user.models import Wishlist , PurchasedGame , Review
 from .models import Game , Category , CoinsPack , Coupon 
 from .utils import get_monthly_income_for_current_year , get_income_by_month_last_year , get_income_this_week, get_income_last_week , random_hex
 from .forms import GameForm , CouponForm
@@ -17,6 +18,10 @@ from datetime import date , datetime ,timedelta
 
 import uuid , hashlib , random
 # Create your views here.
+
+def is_superuser(user):
+    return user.is_superuser
+
 
 @never_cache
 def signIn(request):
@@ -36,6 +41,7 @@ def signIn(request):
     return render(request , 'adminpanel/login.html' )
 
 @never_cache
+@user_passes_test(is_superuser)
 def adminHome(request):
     if request.session.get('admin') is None:
         return redirect('admin-signin')
@@ -58,6 +64,9 @@ def adminHome(request):
     last_week = get_income_last_week()
     print(last_week)
     
+    latest_reviews = Review.objects.all()[:5]
+    
+    
     context = {
         'usersCount' : users.count(),
         'gamesCount' : games.count(),
@@ -68,7 +77,7 @@ def adminHome(request):
         'last_year_income' : last_year_income,
         'this_week' : this_week,
         'last_week' : last_week,
-        
+        'latest_reviews' : latest_reviews,
         
     }
     
@@ -86,6 +95,7 @@ def adminLogout(request):
 #-----------------------------------------------#
 
 # Display all users in a table
+@user_passes_test(is_superuser)
 def usersList(request):
     
     # users = User.objects.filter(is_superuser=False)
@@ -98,16 +108,24 @@ def usersList(request):
     return render(request , 'adminpanel/usersdetails.html' , context)
 
 # diplay details of single users
+@user_passes_test(is_superuser)
 def singleUser(request , userId):
     
     user = User.objects.get(id=userId)
+    reviews = Review.objects.filter(user = request.user)
+    purchases = PurchasedGame.objects.filter(user=request.user)
     
     context = {
         'user' : user,
+        'reviews' : reviews,
+        'purchases' : purchases,
+        'no_purchases' : purchases.count(),
+        'no_reviews' : reviews.count(),
+        
     }
     
     return render(request , 'adminpanel/singleuser.html' , context)
-
+@user_passes_test(is_superuser)
 def editUser(request , userId):
     
     user = User.objects.get(id=userId)
@@ -125,6 +143,7 @@ def editUser(request , userId):
 
 
 # Displaying all game inn a table
+@user_passes_test(is_superuser)
 def gamesList(request):     
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -160,12 +179,14 @@ def gamesList(request):
 
 
 # display single game in detail
+@user_passes_test(is_superuser)
 def singleGame(request , gameId):
     
     game = Game.objects.get(pk=gameId)
     purchases = PurchasedGame.objects.filter(game_id=gameId)
     for purchase in purchases:
         purchase.id = hashlib.sha256(str(purchase.id).encode()).hexdigest()
+        purchase.download_left = 3 - purchase.download_count
     context = {
         'game' : game,
         'purchases' : purchases
@@ -173,6 +194,7 @@ def singleGame(request , gameId):
     
     return render(request , 'adminpanel/singlegame.html' , context)
 
+@user_passes_test(is_superuser)
 def editGame(request , gameId):
     if request.method == "POST":
         name = request.POST.get('name')
@@ -200,6 +222,7 @@ def editGame(request , gameId):
     }
     return render(request , 'adminpanel/editgame.html' , context)
 
+@user_passes_test(is_superuser)
 def deleteGame(request , gameId):
     game = Game.objects.get(pk=gameId)
     game.delete()
@@ -212,6 +235,7 @@ def deleteGame(request , gameId):
 
 
 # Listing all categories
+@user_passes_test(is_superuser)
 def categoriesList(request):
     
     if request.method == 'POST' and request.POST['category'] != '':
@@ -229,6 +253,7 @@ def categoriesList(request):
     }  
     return render(request , 'adminpanel/categorydetails.html' , context )
 
+@user_passes_test(is_superuser)
 def deleteCategory(request , categoryId):
     category = Category.objects.get(pk = categoryId)
     category.delete()
@@ -237,27 +262,98 @@ def deleteCategory(request , categoryId):
 #-----------------------------------------------#
 # ------------- Coins RELATED ----------------- #
 #-----------------------------------------------#
+@user_passes_test(is_superuser)
 def coinsList(request):
-    if request.method == "POST":
+    if request.method == "POST" and request.POST.get('add_coin') == "add_coin":
         coins = request.POST.get('coins')
         offer = request.POST.get('offer')
-        print(coins)
-        print(offer)
-        
         coinPack = CoinsPack.objects.create(coins = coins , offer = offer)
         coinPack.save()
         return redirect('coinslist')
+    
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        selected_option = request.POST.get('option')
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+
+        # Convert start_date and end_date to datetime objects
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+
+        # Query the Transaction model to get transactions within the date range
+        transaction_history = Transaction.objects.filter(timestamp__range=(start_date, end_date))
+        
+        if selected_option != "all":
+            transaction_history = transaction_history.filter(user_id=selected_option)
+        
+        print(transaction_history.count())
+        
+        
+        transaction_list = [
+            {
+                'id': transaction.id,
+                'user' : transaction.user.username,
+                'user_id' : transaction.user.id,
+                'no_coins' : transaction.coins_pack.coins,
+                'price' : transaction.amount,
+                'transaction_id' : transaction.transaction_id,
+                'date': transaction.timestamp.date(),
+                'time': transaction.timestamp.time(),
+                'status' : transaction.status,
+            }
+            for transaction in transaction_history
+        ]
+        users_with_transactions = User.objects.filter(transaction__isnull=False).distinct()
+        # Convert the serialized data into a Python list of dictionaries
+        users_data = [
+            {
+                'username' : user.username ,
+                'user_id' : user.id,
+
+            } for user in users_with_transactions]
+                
+        data = {
+            'transaction_count' : transaction_history.count(),
+            'transactions' : transaction_list,
+            'users' : users_data,
+        }
+        return JsonResponse(data)
         
     coinsPack = CoinsPack.objects.all()
     transaction_history = Transaction.objects.order_by('-id')
+    transaction_list = [
+        {
+            'id': transaction.id,
+            'user' : transaction.user.username,
+            'user_id' : transaction.user.id,
+            'no_coins' : transaction.coins_pack.coins,
+            'price' : transaction.amount,
+            'transaction_id' : transaction.transaction_id,
+            'date': transaction.timestamp.date(),
+            'time': transaction.timestamp.time(),
+            'status' : transaction.status,
+        }
+        for transaction in transaction_history
+    ]
     
+    users_with_transactions = User.objects.filter(transaction__isnull=False).distinct()
+    users_data = [
+        {
+            'username' : user.username ,
+            'user_id' : user.id,
+
+        } for user in users_with_transactions]
+            
+    print(users_with_transactions)
     context = {
         'coins' : coinsPack,
-        'transactions' : transaction_history,
+        'transactions' : transaction_list,
+        'users' : users_data,
     }
     
     return render(request , 'adminpanel/coinsdetails.html' , context)
 
+@user_passes_test(is_superuser)
 def deleteCoins(request , coinsId):
     coinPack = CoinsPack.objects.get(id = coinsId)
     coinPack.delete()
@@ -268,6 +364,7 @@ def deleteCoins(request , coinsId):
 # ------------- Coupon RELATED ----------------- #
 #-----------------------------------------------#
 
+@user_passes_test(is_superuser)
 def couponList(request):
     error = None
 
@@ -303,6 +400,7 @@ def couponList(request):
         context['error'] = error
     return render(request , 'adminpanel/coupon-list.html' , context )
 
+@user_passes_test(is_superuser)
 def deleteCoupon(request , couponId):
     try:
         coupon = Coupon.objects.get(id=couponId)
@@ -310,6 +408,7 @@ def deleteCoupon(request , couponId):
     except Coupon.DoesNotExist:
         print("some error inc encountered")
     return redirect('couponslist')
+@user_passes_test(is_superuser)
 def toggoleCouponActive(request, couponId):
     try:
         coupon = Coupon.objects.get(id=couponId)
