@@ -50,31 +50,35 @@
                     <div id="chat-display-pannel" class="chat-display-pannel">
 
                         <!-- one chaat -->
-                        <div class="chat  mt-2" >
-                            <img class="mt-2 rounded-circle" src="/static/images/profile-pic.webp" alt="">
-                            <div class="chat-contents">
-                                <div class="chat-user rounded-top ps-2 pe-4 w-100">
-                                    <span>user1</span>
+                        {% for message in messages %}
+                            {% if message.user == user %}
+                                <div class="chat-you  mt-2" >
+                                    <img class="mt-2 rounded-circle" src="/static/images/profile-pic.webp" alt="">
+                                    <div class="chat-contents">
+                                        <div class="chat-user rounded-top ps-2 pe-4 w-100">
+                                            <span>you</span>
+                                        </div>
+                                        <div class="chat-text px-2 rounded-bottom w-100">
+                                            Hi   <br>
+                                            Hi   <br>
+                                        </div>                                          
+                                    </div>
                                 </div>
-                                <div class="chat-text px-2 rounded-bottom w-100">
-                                    Hi   
-                                </div>                      
-                            </div>
-                        </div>
-                        <!-- one chaat -->
-                        <div class="chat-you  mt-2" >
-                            <img class="mt-2 rounded-circle" src="/static/images/profile-pic.webp" alt="">
-                            <div class="chat-contents">
-                                <div class="chat-user rounded-top ps-2 pe-4 w-100">
-                                    <span>user1</span>
+                            {% else %}
+                                <div class="chat  mt-2" >
+                                    <img class="mt-2 rounded-circle" src="/static/images/profile-pic.webp" alt="">
+                                    <div class="chat-contents">
+                                        <div class="chat-user rounded-top ps-2 pe-4 w-100">
+                                            <span>{{message.user}}</span>
+                                        </div>
+                                        <div class="chat-text px-2 rounded-bottom w-100">
+                                            Hi   
+                                        </div>                      
+                                    </div>
                                 </div>
-                                <div class="chat-text px-2 rounded-bottom w-100">
-                                    Hi   <br>
-                                    Hi   <br>
-                                </div>                                          
-                            </div>
-                        </div>
-                        
+                                <!-- one chaat -->
+                            {% endif %}
+                        {% endfor %}
                         
                     </div>
                     

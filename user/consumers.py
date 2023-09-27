@@ -4,6 +4,7 @@ import json , re
 from account.models import User
 from adminpanel.models import Game
 from .models import Message
+from asgiref.sync import sync_to_async
 # from django.contrib.auth import get_user_model
 
 
@@ -36,6 +37,7 @@ class ChatConsumer(AsyncConsumer):
         msg = received_data.get('message')
         send_by_id = received_data.get('sent_by')
         send_to_id = received_data.get('sent_to')
+        # message = self.create_message(send_by_id, send_to_id, msg)
         if not msg:
             print("eroor : empty message")
             return False
@@ -47,7 +49,7 @@ class ChatConsumer(AsyncConsumer):
         if not sent_to_game:
             print("Error : send to user is incorrect")
             
-        # msg = Message.objects.create(user_id = send_by_id , game = send_to_id, message = msg)
+        message = await self.create_message(send_by_id, send_to_id, msg)
         
         other_user_chat_room = f"user_chatroom_{send_to_id}"
         self_user = self.scope['user']
@@ -117,9 +119,12 @@ class ChatConsumer(AsyncConsumer):
         # print(obj , "gameeeeeeeeeeeeeeeeeeeeeeeeee")
         return obj
     
-    async def create_message(send_by_id, send_to_id, msg):
+    @sync_to_async
+    def create_message(self, send_by_id, send_to_id, msg):
         try:
-            message = await Message.objects.create(user_id=send_by_id, game_id=send_to_id, message=msg)
+            user = User.objects.get(id=send_by_id)
+            game = Game.objects.get(id=send_to_id)
+            message = Message(user=user, game=game, message=msg)
             message.save()
             return message
         except Exception as e:

@@ -34,6 +34,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,12 +43,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # third party apps
     'paypal.standard.ipn',
+    'channels',
     
     
     # custom apps
     'account',
     'adminpanel',
     'user',
+    
+    
 ]
 
 MIDDLEWARE = [
@@ -78,7 +82,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'LaNPC.wsgi.application'
+# WSGI_APPLICATION = 'LaNPC.wsgi.application'
+ASGI_APPLICATION = 'LaNPC.asgi.application'
 
 
 # Database
@@ -165,3 +170,11 @@ PAYPAL_RECEIVER_EMAIL = 'bizwhitejag@example.com'
 PAYPAL_TEST = True
 
 
+CHANNEL_LAYERS = {
+    'default' : {
+        'BACKEND' : 'channels.layers.InMemoryChannelLayer',
+        # 'CONFIG' :{
+        #     'hosts' : [('127.0.0.1' , 6779)],
+        # }
+    }
+}
