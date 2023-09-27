@@ -31,3 +31,12 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Review by {self.user.username} for {self.game}"
+    
+class Message(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Message from {self.user.username} in {self.game.name} at {self.timestamp}"
