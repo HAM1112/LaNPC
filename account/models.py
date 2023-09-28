@@ -58,6 +58,13 @@ class Transaction(models.Model):
     def __str__(self):
         return f"Transaction ID: {self.transaction_id} - Status: {self.status}"
 
+    @property
+    def transaction_date(self):
+        return self.timestamp.date()
+
+    @property
+    def transaction_time(self):
+        return self.timestamp.time()
 
 class CouponUsage(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -6,7 +6,7 @@ from adminpanel.models import Game , Category , CoinsPack
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 
-from .models import Wishlist , PurchasedGame , Review
+from .models import Wishlist , PurchasedGame , Review , Message
 from account.models import Transaction , User
 
 from datetime import datetime
@@ -186,8 +186,10 @@ def browse(request):
     return render(request , 'user/browse.html' , context )
 
 def buyGame(request , gameId):
+    
     game = Game.objects.get(id=gameId)
     user = request.user
+    
     
     if PurchasedGame.objects.filter(user=user, game=game).exists():
         return redirect('game' , gameId)
@@ -275,12 +277,15 @@ def profile(request):
     
     transactions = Transaction.objects.filter(user=request.user)
     
+    gamechat = purchased_games[0].game
+    
     context = {
         'wishlists' : wishlists,
         'purchased_games' : purchased_games,
         'wishlist_count' : wishlists.count(),
         'purchase_count' : purchased_games.count(),
         'transactions' : transactions,
+        "gamechat" : gamechat,
     } 
     return render(request , 'user/profile.html' , context)
 
@@ -322,13 +327,17 @@ def download_game_images(request, game_id):
         
     
 
-def chatRooms(request):
+def chatRooms(request , game_id):
+    # if request.method == "POST":
+    #     print(request.POST.get('message'))
     
     purchased_games = PurchasedGame.objects.filter(user = request.user)
-    
+    game = Game.objects.get(id=game_id)
+    messages = Message.objects.filter(game = game)
     context = {
         'games' : purchased_games,
-        
+        'game' : game,
+        'messages' : messages,
     }
     return render(request , 'user/chatrooms.html', context)
 
