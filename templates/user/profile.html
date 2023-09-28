@@ -22,7 +22,7 @@
             <p>Email : {{user.email}} </p>
             <p>Age  : {{user.date_of_birth}} </p>
             <div class="main-border-button">
-              <a href="{% url 'chat-rooms' %}">Chat Rooms</a>
+              <a href="{% url 'chat-rooms' gamechat.id %}">Chat Rooms</a>
             </div>
             <div class="mt-3">
               <span class="btn" data-bs-toggle="modal" data-bs-target="#buygame" >Edit</span>
@@ -135,8 +135,9 @@
         </li>
         
         <li>
-          <h4>Community</h4><span class="comm-chat">Chat</span>
+          <div class="main-border-button border-no-active"><a href="{% url 'chat-rooms' purchase.game.id %}">Go to Community</a></div>
         </li>
+        
         <li>
           <div class="main-border-button border-no-active"><a href="{% url 'game' purchase.game.id %}">Download</a></div>
         </li>
@@ -191,7 +192,7 @@
           </div>
 
           <div class="form-outline datepicker" data-mdb-format="dd, mmm, yyyy">
-            <input type="date" class="form-control" id="exampleDatepicker4" placeholder="dd, mmm, yyyy" value="{% if user.date_of_birth %}{{user.date_of_birth}}{% else %}2000-01-01{% endif %}" name="dob" >
+            <input type="date" class="form-control" id="exampleDatepicker4" placeholder="dd, mmm, yyyy" value="{{user.date_of_birth}}" name="dob" >
             <label for="exampleDatepicker4" class="form-label">Date of birth</label>
           </div>
 
