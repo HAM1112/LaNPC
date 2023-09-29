@@ -94,7 +94,7 @@ def adminHome(request):
 @never_cache
 def adminLogout(request):
     # request.session.flush()
-    request.session.pop('user', None)
+    request.session.pop('admin', None)
     auth.logout(request)
     return redirect('admin-signin')
 

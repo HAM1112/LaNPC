@@ -3,15 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ADMIN</title>
+  <title>ADMIN | {% block title %}{% endblock title %}</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-  
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  {% comment %} <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> {% endcomment %}
-
 
 </head>
 <body class="bg-gray-800">
@@ -20,11 +17,11 @@
     <div class="container mx-auto flex justify-between items-center">
       <a href="#" class="text-black font-semibold text-lg">LaNPC Admin</a>
       <button class="text-white focus:outline-none md:hidden">Menu</button>
-      <div class="hidden md:flex space-x-4">
+      <div class="hidden md:flex items-center space-x-4">
         <a href="#" class="text-black hover:text-gray-600">Home</a>
         <a href="#" class="text-black hover:text-gray-600">About</a>
         <a href="#" class="text-black hover:text-gray-600">Services</a>
-        <a href="#" class="text-black hover:text-gray-600">Contact</a>
+        <a href="{% url 'admin-logout' %}" class="bg-teal-200 hover:bg-gray-700 text-gray-700 font-semibold hover:text-white py-1 px-2 border border-gray-600 hover:border-transparent rounded">Logout</a>
       </div>
     </div>
   </nav>
@@ -46,9 +43,7 @@
     </div>
 
     <!-- Main Content -->
-    <div class="w-3/4 bg-zinc-700 p-8 shadow-lg text-white overflow-scroll pb-4">
-      
-      
+    <div class="w-3/4 bg-zinc-700 p-8 shadow-lg text-white overflow-scroll pb-4">   
         {% block content %}{% endblock  %}
     </div>
   </div>
