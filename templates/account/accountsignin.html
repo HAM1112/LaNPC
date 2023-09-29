@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LaNPC | Admin Login</title>
+    <title>LaNPC | Register</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/adminlogin.css' %}" />
 </head>
@@ -14,7 +14,6 @@
                 {% csrf_token %}
                 <div class="login-container container">
                     <h2>Login</h2>
-
                     <div class="input-field">
                         <img src="{% static 'images/username.png' %}" alt="" srcset="">
                         <span></span>
@@ -30,7 +29,6 @@
                     {% endif %} 
                     <input type="submit" class="login-btn" value="Login">
                 </div>
-
             </form>
         </div>
     </body>
