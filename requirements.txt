@@ -19,5 +19,5 @@ virtualenv-clone==0.5.7
 daphne
 channels
 django-paypal
-
+psycopg2
 
