@@ -16,14 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path , include
-
+from django.views.generic import RedirectView
 
 urlpatterns = [
+    path('', RedirectView.as_view(url='home/', permanent=False)),
     path('admin/', admin.site.urls),
     path('adminpanel/' , include('adminpanel.urls')),
     path('account/', include('account.urls')),
     path('user/' , include('user.urls')),
-    
     # paypal url
     path('paypal/' , include('paypal.standard.ipn.urls')),
 ]
