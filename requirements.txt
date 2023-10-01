@@ -18,4 +18,6 @@ virtualenv==20.23.1
 virtualenv-clone==0.5.7
 daphne
 channels
+django-paypal
+
 
