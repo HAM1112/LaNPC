@@ -16,3 +16,6 @@ typing_extensions==4.6.0
 tzdata==2023.3
 virtualenv==20.23.1
 virtualenv-clone==0.5.7
+daphne
+channels
+
