@@ -50,11 +50,11 @@ def signUp(request):
 def verifyOtp(request):
     if request.method =="POST":
         stored_otp = request.session.get('otp')
+        user_otp = request.POST['otp']
         if user_otp == stored_otp:
             stored_username = request.session.get('username')
             stored_email = request.session.get('email')
             stored_password = request.session.get('password')
-            user_otp = request.POST['otp']
             user = User.objects.create_user(username=stored_username,email=stored_email,password=stored_password)
             del request.session['otp']
             del request.session['email']
