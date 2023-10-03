@@ -29,11 +29,9 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG')
 
 ALLOWED_HOSTS = ["*"]
-print(ALLOWED_HOSTS)
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'daphne',
     'django.contrib.admin',
@@ -45,7 +43,8 @@ INSTALLED_APPS = [
     # third party apps
     'paypal.standard.ipn',
     'channels',
-    
+    'cloudinary_storage',
+    'cloudinary',
     
     # custom apps
     'account',
@@ -91,14 +90,14 @@ ASGI_APPLICATION = 'LaNPC.asgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-   'default': {
-       'ENGINE': 'django.db.backends.postgresql',
-       'NAME': 'lanpc',
-       'USER': 'postgres',
-       'PASSWORD': 'wq12',
-       'HOST': 'localhost',
-       'PORT': '5432',
-   }
+#    'default': {
+#        'ENGINE': 'django.db.backends.postgresql',
+#        'NAME': 'lanpc',
+#        'USER': 'postgres',
+#        'PASSWORD': 'wq12',
+#        'HOST': 'localhost',
+#        'PORT': '5432',
+#    }
 }
 
 database_url = config('database_url')
@@ -146,12 +145,19 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'assets')
 
 
 MEDIA_URL = '/uploads/'
-
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static/uploads')
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': config('cloud_name'),
+    'API_KEY': config('cloudinary_key'),
+    'API_SECRET': config('cloudinary_secret'),
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -178,9 +184,9 @@ PAYPAL_TEST = config('PAYPAL_TEST')
 
 CHANNEL_LAYERS = {
     'default' : {
-        'BACKEND' : 'channels.layers.InMemoryChannelLayer',
-        # 'CONFIG' :{
-        #     'hosts' : [('127.0.0.1' , 6779)],
-        # }
+        'BACKEND' : 'channels_redis.core.RedisChannelLayer',
+        "CONFIG": {
+             "hosts": [(config('redis_domain_name'))],
+        },
     }
 }
