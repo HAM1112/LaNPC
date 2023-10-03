@@ -20,4 +20,6 @@ daphne
 channels
 django-paypal
 psycopg2
-
+django-cloudinary-storage
+channels-redis==4.1.0
+cloudinary==1.34
